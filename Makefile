@@ -7,7 +7,8 @@
 ##
 
 # All the source files
-CXX_SOURCES		= 	src/main.cpp										\
+CXX_SOURCES		= 	src/main.cpp	\
+					src/Cooks.cpp	\
 
 CXX_TESTS		=
 
