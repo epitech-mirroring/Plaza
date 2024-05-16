@@ -90,3 +90,4 @@ Temporary Items
 *.lock*
 node_modules/
 *.json
+*.log
