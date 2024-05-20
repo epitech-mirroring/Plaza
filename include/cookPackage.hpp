@@ -13,6 +13,7 @@
 struct cookPackage {
     PizzaType pizza;
     PizzaSize size;
+    std::string command;
     std::size_t timeToCook;
     Cooks *cooker;
 };

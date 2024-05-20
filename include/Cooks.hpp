@@ -8,13 +8,15 @@
 
 #pragma once
 #include "Pizza.hpp"
+#include "Command.hpp"
 
 class Cooks {
     public:
-        Cooks();
+        Cooks(std::vector<Command> &_doneCommandsList);
         ~Cooks() = default;
         void *cook(void *param);
         bool getIsCooking();
     private:
         bool _isCooking;
+        std::vector<Command> _doneCommandsList;
 };
