@@ -9,6 +9,18 @@
 #pragma once
 #include <iostream>
 
+enum Ingredients {
+    DOUGH = 1,
+    TOMATO = 2,
+    GRUYERE = 3,
+    HAM = 4,
+    MUSHROOMS = 5,
+    STEAK = 6,
+    EGGPLANT = 7,
+    GOAT_CHEESE = 8,
+    CHIEF_LOVE = 9
+};
+
 enum PizzaType {
     Regina = 1,
     Margarita = 2,

@@ -18,7 +18,7 @@ class SafeQueue {
             _mutex = Mutex();
         };
         ~SafeQueue() = default;
-        bool push(int value) {
+        bool push(T &value) {
             if (_queue.size() >= _maxSize) {
                 return false;
             }
@@ -35,6 +35,10 @@ class SafeQueue {
             value = _queue.front();
             _queue.pop();
             return true;
+        };
+        std::size_t size() {
+            ScopedLock lock(_mutex);
+            return _queue.size();
         };
         SafeQueue &operator=(const SafeQueue &safe_queue) {
             _queue = safeQueue._queue;
