@@ -7,24 +7,21 @@
 */
 
 #include "Cooks.hpp"
-#include <unistd.h>
+#include "Pizza.hpp"
+#include "Timer.hpp"
 
 Cooks::Cooks()
 {
     _isCooking = false;
 }
 
-Cooks::~Cooks()
-{
-}
-
-void Cooks::cook(std::string pizzaName, std::size_t timeToCook)
+void Cooks::cook(PizzaType pizza, PizzaSize size, std::size_t timeToCook)
 {
     _isCooking = true;
-    std::cout << "Cooking " << pizzaName << "for " << timeToCook << " micro seconds" << std::endl;
-    usleep(timeToCook);
+    std::cout << "Cooking an " << size << " " << pizza << std::endl;
+    Timer::wait(timeToCook, MICROSECONDS);
     _isCooking = false;
-    std::cout << pizzaName << " is ready" << std::endl;
+    std::cout << pizza << " " << size << " has been cook with love" << std::endl;
     // send information to the kitchen
 }
 

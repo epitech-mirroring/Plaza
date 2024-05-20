@@ -9,6 +9,8 @@
 # All the source files
 CXX_SOURCES		= 	src/main.cpp	\
 					src/Cooks.cpp	\
+					src/Timer.cpp	\
+					src/Pizza.cpp	\
 
 CXX_TESTS		=
 

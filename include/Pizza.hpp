@@ -24,43 +24,5 @@ enum PizzaSize {
     XXL = 16
 };
 
-std::ostream &operator<<(std::ostream &os, PizzaType const &type)
-{
-    switch (type) {
-        case Regina:
-            os << "Regina";
-            break;
-        case Margarita:
-            os << "Margarita";
-            break;
-        case Americana:
-            os << "Americana";
-            break;
-        case Fantasia:
-            os << "Fantasia";
-            break;
-    }
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, PizzaSize const &size)
-{
-    switch (size) {
-        case S:
-            os << "S";
-            break;
-        case M:
-            os << "M";
-            break;
-        case L:
-            os << "L";
-            break;
-        case XL:
-            os << "XL";
-            break;
-        case XXL:
-            os << "XXL";
-            break;
-    }
-    return os;
-}
+std::ostream &operator<<(std::ostream &os, PizzaType const &type);
+std::ostream &operator<<(std::ostream &os, PizzaSize const &size);
