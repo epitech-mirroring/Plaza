@@ -7,14 +7,13 @@
 */
 
 #pragma once
-#include <iostream>
 #include "Pizza.hpp"
 
 class Cooks {
     public:
         Cooks();
         ~Cooks() = default;
-        void cook(PizzaType pizza, PizzaSize size, std::size_t timeToCook);
+        void *cook(void *param);
         bool getIsCooking();
     private:
         bool _isCooking;

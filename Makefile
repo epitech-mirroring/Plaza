@@ -7,8 +7,8 @@
 ##
 
 # All the source files
-CXX_SOURCES		= 	src/main.cpp	\
-					src/Cooks.cpp	\
+CXX_SOURCES		= 	src/Cooks.cpp	\
+					src/main.cpp	\
 					src/Timer.cpp	\
 					src/Pizza.cpp	\
 
