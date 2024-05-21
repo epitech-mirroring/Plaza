@@ -49,3 +49,35 @@ std::ostream &operator<<(std::ostream &os, PizzaSize const &size)
     return os;
 }
 
+Pizza::Pizza(PizzaType type, PizzaSize size)
+{
+    _type = type;
+    _size = size;
+}
+
+PizzaType Pizza::getType() const
+{
+    return _type;
+}
+
+PizzaSize Pizza::getSize() const
+{
+    return _size;
+}
+
+void Pizza::setType(PizzaType type)
+{
+    _type = type;
+}
+
+void Pizza::setSize(PizzaSize size)
+{
+    _size = size;
+}
+
+std::ostream &operator<<(std::ostream &os, Pizza const &pizza)
+{
+    os << pizza.getType() << " " << pizza.getSize();
+    return os;
+}
+

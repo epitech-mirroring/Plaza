@@ -7,6 +7,7 @@
 */
 
 #include "Thread.hpp"
+#include <signal.h>
 #include <bits/sigthread.h>
 #include <pthread.h>
 #include <cerrno>
@@ -14,6 +15,7 @@
 Thread::Thread()
 {
     pthread_mutex_init(&_mutex, NULL);
+    _thread = pthread_t();
 }
 
 Thread::~Thread()

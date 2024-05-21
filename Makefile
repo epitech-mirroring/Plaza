@@ -7,10 +7,14 @@
 ##
 
 # All the source files
-CXX_SOURCES		= 	src/Cooks.cpp	\
-					src/main.cpp	\
-					src/Timer.cpp	\
-					src/Pizza.cpp	\
+CXX_SOURCES		= 	src/Cooks.cpp		\
+					src/Kitchen.cpp		\
+					src/main.cpp		\
+					src/Mutex.cpp		\
+					src/Pizza.cpp		\
+					src/ScopeLock.cpp	\
+					src/Thread.cpp		\
+					src/Timer.cpp		\
 
 CXX_TESTS		=
 

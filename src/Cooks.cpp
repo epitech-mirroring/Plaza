@@ -10,26 +10,23 @@
 #include "Timer.hpp"
 #include "cookPackage.hpp"
 
-Cooks::Cooks(std::vector<Command> &_doneCommandsList)
+Cooks::Cooks()
 {
     _isCooking = false;
-    _doneCommandsList = _doneCommandsList;
 }
 
 void *Cooks::cook(void *param)
 {
-    struct cookPackage cookPackage = *(struct cookPackage *)param;
-    // cookPackage.cooker->_isCooking = true;
-    std::cout << "Cooking an " << cookPackage.size << " " << cookPackage.pizza << std::endl;
-    Timer::wait(cookPackage.timeToCook, MICROSECONDS);
-    // cookPackage.cooker->_isCooking = false;
-    std::cout << cookPackage.pizza << " " << cookPackage.size << " has been cook with love" << std::endl;
-    // send information to the kitchen
-    Command command;
-    command.pizzas.push_back(cookPackage.pizza);
-    command.sizes.push_back(cookPackage.size);
-    command.command = cookPackage.command;
-    _doneCommandsList.push_back(command);
+    struct CookPackage *cookPackage = (struct CookPackage *)param;
+    cookPackage->cooker->_isCooking = true;
+    std::cout << "Cooking an " << cookPackage->command.pizzas.front().getSize() << " " << cookPackage->command.pizzas.front().getType() << std::endl;
+    Timer::wait(cookPackage->timeToCook, MICROSECONDS);
+    cookPackage->cooker->_isCooking = false;
+    std::cout << cookPackage->command.pizzas.front().getType() << " " << cookPackage->command.pizzas.front().getSize() << " has been cook with love" << std::endl;
+
+    Command command = cookPackage->command;
+    cookPackage->_doneCommandsList->push_back(command);
+    delete cookPackage;
     return nullptr;
 }
 

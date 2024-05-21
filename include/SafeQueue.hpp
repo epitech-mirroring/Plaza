@@ -8,6 +8,7 @@
 
 #pragma once
 #include "Mutex.hpp"
+#include "ScopeLock.hpp"
 #include <queue>
 
 template <typename T>
@@ -28,7 +29,6 @@ class SafeQueue {
         };
         bool tryPop(T &value) {
             ScopedLock lock(_mutex);
-            // std::cout << _queue.size() << std::endl;
             if (_queue.empty()) {
                 return false;
             }
@@ -41,8 +41,8 @@ class SafeQueue {
             return _queue.size();
         };
         SafeQueue &operator=(const SafeQueue &safe_queue) {
-            _queue = safeQueue._queue;
-            _mutex = safeQueue._mutex;
+            _queue = safe_queue._queue;
+            _mutex = safe_queue._mutex;
             return *this;
         };
     private :

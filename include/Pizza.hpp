@@ -36,5 +36,19 @@ enum PizzaSize {
     XXL = 16
 };
 
+class Pizza {
+    public:
+        Pizza(PizzaType type, PizzaSize size);
+        ~Pizza() = default;
+        PizzaType getType() const;
+        PizzaSize getSize() const;
+        void setType(PizzaType type);
+        void setSize(PizzaSize size);
+    private:
+        PizzaType _type;
+        PizzaSize _size;
+};
+
 std::ostream &operator<<(std::ostream &os, PizzaType const &type);
 std::ostream &operator<<(std::ostream &os, PizzaSize const &size);
+std::ostream &operator<<(std::ostream &os, Pizza const &pizza);

@@ -8,19 +8,20 @@
 
 #include "Kitchen.hpp"
 #include "cookPackage.hpp"
+#include <chrono>
 
-Kitchen::Kitchen(std::size_t nbCooksMax, std::size_t refillTime, std::size_t cookTimeMultiplier)
+Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, std::size_t cookTimeMultiplier)
 {
     _nbCooksMax = nbCooksMax;
     _refillTime = refillTime;
     _cookTimeMultiplier = cookTimeMultiplier;
-    _lastRefill = time(NULL);
-    _lastWork = time(NULL);
+    _lastRefill = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
     _commandQueue = std::vector<Command>();
     _doneCommands = std::vector<Command>();
     _stocks = {5, 5, 5, 5, 5, 5, 5, 5, 5};
     for (std::size_t i = 0; i < _nbCooksMax; i++) {
-        Cooks *cooker = new Cooks(_doneCommands);
+        Cooks *cooker = new Cooks();
         coockersStruct cookerStruct = {cooker, Thread()};
         _cookers.push_back(cookerStruct);
     }
@@ -28,7 +29,7 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::size_t refillTime, std::size_t coo
 
 void Kitchen::refill()
 {
-    if (time(NULL) - _lastRefill >= _refillTime / 1000) {
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastRefill >= _refillTime) {
         _stocks.dough++;
         _stocks.tomato++;
         _stocks.gruyere++;
@@ -38,15 +39,16 @@ void Kitchen::refill()
         _stocks.eggplant++;
         _stocks.goatCheese++;
         _stocks.chiefLove++;
-        _lastRefill = time(NULL);
+        _lastRefill = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     }
 }
 
-bool Kitchen::addCommand(Command command)
+bool Kitchen::addCommand(Command &command)
 {
     if (_commandQueue.size() >= 2 * _nbCooksMax)
         return false;
     _commandQueue.push_back(command);
+    std::cout << "New command " << command.command << " added to the queue" << std::endl;
     return true;
 }
 
@@ -57,36 +59,39 @@ std::size_t Kitchen::getCommandQueueSize()
 
 void Kitchen::loop()
 {
-    while (_lastWork - time(NULL) < 5) {
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(5)) {
         refill();
-        // updateCommands();
+        updateCommands();
     }
 }
 
 void Kitchen::updateCommands()
 {
     if (_commandQueue.size() > 0) {
-        for (auto command : _commandQueue){
-            if (!canCook(command.pizzas.front()))
+        for (auto command : _commandQueue) {
+            if (!canCook(command.pizzas.front().getType()))
                 continue;
             for (auto cooker : _cookers) {
                 if (cooker.cooker->getIsCooking())
                     continue;
-                cookPackage package;
-                package.command = command.command;
-                package.pizza = command.pizzas.front();
-                package.size = command.sizes.front();
-                if (package.pizza == Regina) {
-                    package.timeToCook = 2;
+                CookPackage *package = new CookPackage();
+                package->_doneCommandsList = &_doneCommands;
+                package->command.pizzas.push_back(command.pizzas.front());
+                if (package->command.pizzas.front().getType() == Regina) {
+                    package->timeToCook = 2;
                 } else {
-                    package.timeToCook = package.pizza / 2;
+                    package->timeToCook = package->command.pizzas.front().getType() / 2;
                 }
-                package.timeToCook *= _cookTimeMultiplier;
-                package.cooker = cooker.cooker;
-                cooker.thread.create((void *(*)(void *))Cooks::cook((void*)&package), (void*)&package);
-                removeIngredients(package.pizza);
+                package->timeToCook *= _cookTimeMultiplier;
+                package->cooker = cooker.cooker;
+                cooker.thread.create(Cooks::cook, (void*)package);
+                removeIngredients(package->command.pizzas.front().getType());
                 _commandQueue.erase(findCommand(command));
+                _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+                break;
             }
+            if (_commandQueue.size() == 0)
+                return;
         }
     }
     //todo send done command to reception

@@ -10,10 +10,9 @@
 #include <iostream>
 #include "Cooks.hpp"
 
-struct cookPackage {
-    PizzaType pizza;
-    PizzaSize size;
-    std::string command;
+struct CookPackage {
+    Command command;
     std::size_t timeToCook;
     Cooks *cooker;
+    std::vector<Command> *_doneCommandsList;
 };

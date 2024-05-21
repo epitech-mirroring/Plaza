@@ -8,9 +8,9 @@
 
 #pragma once
 #include "Cooks.hpp"
-#include "Command.hpp"
 #include "SafeQueue.hpp"
-#include "Thread.cpp"
+#include "Thread.hpp"
+#include <chrono>
 
 struct coockersStruct {
     Cooks *cooker;
@@ -35,16 +35,16 @@ protected:
     std::vector<Command> _doneCommands;
     std::vector<coockersStruct> _cookers;
     std::size_t _nbCooksMax;
-    std::size_t _refillTime;
-    std::size_t _lastRefill;
-    std::size_t _lastWork;
+    std::chrono::milliseconds _refillTime;
+    std::chrono::milliseconds _lastRefill;
+    std::chrono::seconds _lastWork;
     std::size_t _cookTimeMultiplier;
     stocks _stocks;
 public:
-    Kitchen(std::size_t nbCooksMax, std::size_t refillTime, std::size_t cookTimeMultiplier);
+    Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, std::size_t cookTimeMultiplier);
     ~Kitchen() = default;
     void refill();
-    bool addCommand(Command command);
+    bool addCommand(Command &command);
     std::size_t getCommandQueueSize();
     void loop();
     void updateCommands();

@@ -12,11 +12,10 @@
 
 class Cooks {
     public:
-        Cooks(std::vector<Command> &_doneCommandsList);
+        Cooks();
         ~Cooks() = default;
         static void *cook(void *param);
         bool getIsCooking();
     private:
         bool _isCooking;
-        std::vector<Command> _doneCommandsList;
 };
