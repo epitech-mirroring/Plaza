@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** Plaza
+** Plazza
 ** File description:
 ** No file there , just an epitech header example .
 ** You can even have multiple lines if you want !
@@ -9,46 +9,40 @@
 #pragma once
 #include <iostream>
 
-enum Ingredients {
-    DOUGH = 1,
-    TOMATO = 2,
-    GRUYERE = 3,
-    HAM = 4,
-    MUSHROOMS = 5,
-    STEAK = 6,
-    EGGPLANT = 7,
-    GOAT_CHEESE = 8,
-    CHIEF_LOVE = 9
-};
-
-enum PizzaType {
-    Regina = 1,
-    Margarita = 2,
-    Americana = 4,
-    Fantasia = 8
-};
-
-enum PizzaSize {
-    S = 1,
-    M = 2,
-    L = 4,
-    XL = 8,
-    XXL = 16
-};
-
 class Pizza {
-    public:
-        Pizza(PizzaType type, PizzaSize size);
-        ~Pizza() = default;
-        PizzaType getType() const;
-        PizzaSize getSize() const;
-        void setType(PizzaType type);
-        void setSize(PizzaSize size);
-    private:
-        PizzaType _type;
-        PizzaSize _size;
-};
+public:
+    enum Type {
+        Regina = 1,
+        Margarita = 2,
+        Americana = 4,
+        Fantasia = 8
+    };
 
-std::ostream &operator<<(std::ostream &os, PizzaType const &type);
-std::ostream &operator<<(std::ostream &os, PizzaSize const &size);
-std::ostream &operator<<(std::ostream &os, Pizza const &pizza);
+    enum Size {
+        S = 1,
+        M = 2,
+        L = 4,
+        XL = 8,
+        XXL = 16
+    };
+
+protected:
+    Type _type;
+    Size _size;
+
+public:
+    Pizza(Type type, Size size);
+    ~Pizza();
+
+    Type getType() const;
+    Size getSize() const;
+    void setType(Type type);
+    void setSize(Size size);
+
+    bool operator==(const Pizza &other) const;
+    bool operator!=(const Pizza &other) const;
+
+    friend std::ostream &operator<<(std::ostream &os, const Pizza &pizza);
+    friend std::ostream &operator<<(std::ostream &os, const Type &type);
+    friend std::ostream &operator<<(std::ostream &os, const Size &size);
+};

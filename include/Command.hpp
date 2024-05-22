@@ -1,34 +1,34 @@
 /*
 ** EPITECH PROJECT, 2024
-** Plaza
+** Plazza
 ** File description:
 ** No file there , just an epitech header example .
 ** You can even have multiple lines if you want !
 */
 
 #pragma once
-#include "Pizza.hpp"
+#include "UUID.hpp"
 #include <vector>
+#include "Pizza.hpp"
 
-struct Command {
-    std::string command;
-    std::vector<Pizza> pizzas;
+class Command {
+protected:
+    UUID _uuid;
+    std::vector<Pizza> _pizzas;
+public:
+    Command();
+    Command(const Command &other);
+    ~Command() = default;
 
-    bool operator==(Command &command2) {
-        if (command != command2.command)
-            return false;
-        if (pizzas.front().getType() != command2.pizzas.front().getType())
-            return false;
-        if (pizzas.front().getSize() != command2.pizzas.front().getSize())
-            return false;
-        return true;
-    }
-    Command &operator<<(Command &command2) {
-        for (auto pizza : command2.pizzas) {
-            pizzas.push_back(pizza);
-        }
-        command2.pizzas.clear();
-        return *this;
-    }
+    [[nodiscard]] const UUID &getUuid() const;
+    void setUuid(const UUID &uuid);
+    [[nodiscard]] const std::vector<Pizza> &getPizzas() const;
+    void setPizzas(const std::vector<Pizza> &pizzas);
+    void addPizza(const Pizza &pizza);
+    void removePizza(const Pizza &pizza);
+    bool operator==(const Command &other) const;
+    bool operator!=(const Command &other) const;
+    Command &operator=(const Command &other);
+
+    friend std::ostream &operator<<(std::ostream &os, const Command &command);
 };
-
