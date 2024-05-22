@@ -15,9 +15,11 @@ CXX_SOURCES		= 	src/Cooks.cpp		\
 					src/ScopeLock.cpp	\
 					src/Thread.cpp		\
 					src/Timer.cpp		\
-					src/UUID.cpp										\
-					src/Ticket.cpp										\
-					src/Ingredient.cpp									\
+					src/UUID.cpp		\
+					src/Ticket.cpp		\
+					src/Ingredient.cpp	\
+					src/Command.cpp		\
+					src/Recipe.cpp		\
 
 CXX_TESTS		=
 
@@ -26,7 +28,7 @@ LIBS			=
 # Compiler and linker settings
 NAME 			= 	plazza
 CXX				= 	g++
-CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include -L./libs
+CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include -L./libs -luuid
 MACOS_FLAGS		=
 LINUX_FLAGS		=
 CXXFLAGS		+=	$(shell [ `uname -s` = "Darwin" ] && echo $(MACOS_FLAGS))

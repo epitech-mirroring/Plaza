@@ -10,45 +10,35 @@
 #include "Cooks.hpp"
 #include "SafeQueue.hpp"
 #include "Thread.hpp"
+#include "Recipe.hpp"
 #include <chrono>
+#include <map>
 
 struct coockersStruct {
     Cooks *cooker;
     Thread thread;
 };
 
-struct stocks {
-    std::size_t dough;
-    std::size_t tomato;
-    std::size_t gruyere;
-    std::size_t ham;
-    std::size_t mushrooms;
-    std::size_t steak;
-    std::size_t eggplant;
-    std::size_t goatCheese;
-    std::size_t chiefLove;
-};
-
 class Kitchen {
 protected:
-    std::vector<Command> _commandQueue;
-    std::vector<Command> _doneCommands;
+    std::vector<Ticket> _ticketQueue;
+    std::vector<Ticket> _doneTickets;
     std::vector<coockersStruct> _cookers;
     std::size_t _nbCooksMax;
     std::chrono::milliseconds _refillTime;
     std::chrono::milliseconds _lastRefill;
     std::chrono::seconds _lastWork;
     std::size_t _cookTimeMultiplier;
-    stocks _stocks;
+    std::map<Ingredient, std::size_t> _ingredients;
 public:
     Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, std::size_t cookTimeMultiplier);
     ~Kitchen() = default;
     void refill();
-    bool addCommand(Command &command);
-    std::size_t getCommandQueueSize();
+    bool addTicket(Ticket &ticket);
+    std::size_t getTicketQueueSize();
     void loop();
-    void updateCommands();
-    bool canCook(PizzaType pizzaType);
-    void removeIngredients(PizzaType pizzaType);
-    std::vector<Command>::const_iterator findCommand(Command);
+    void updateTickets();
+    bool canCook(Pizza::Type pizzaType);
+    void removeIngredients(Pizza::Type pizzaType);
+    std::vector<Ticket>::const_iterator findTicket(Ticket &ticket);
 };

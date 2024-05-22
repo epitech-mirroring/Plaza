@@ -11,8 +11,9 @@
 #include "Cooks.hpp"
 
 struct CookPackage {
-    Command command;
+    Ticket *ticket;
     std::size_t timeToCook;
     Cooks *cooker;
-    std::vector<Command> *_doneCommandsList;
+    std::vector<Ticket> *_doneCommandsList;
+    CookPackage(Ticket *ticket, std::size_t timeToCook, Cooks *cooker, std::vector<Ticket> *doneCommandsList) : ticket(ticket), timeToCook(timeToCook), cooker(cooker), _doneCommandsList(doneCommandsList) {}
 };

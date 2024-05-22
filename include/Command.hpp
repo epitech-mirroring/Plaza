@@ -25,7 +25,6 @@ public:
     [[nodiscard]] const std::vector<Pizza> &getPizzas() const;
     void setPizzas(const std::vector<Pizza> &pizzas);
     void addPizza(const Pizza &pizza);
-    void removePizza(const Pizza &pizza);
     bool operator==(const Command &other) const;
     bool operator!=(const Command &other) const;
     Command &operator=(const Command &other);

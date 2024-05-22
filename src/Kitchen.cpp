@@ -17,9 +17,11 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, s
     _cookTimeMultiplier = cookTimeMultiplier;
     _lastRefill = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
-    _commandQueue = std::vector<Command>();
-    _doneCommands = std::vector<Command>();
-    _stocks = {5, 5, 5, 5, 5, 5, 5, 5, 5};
+    _ticketQueue = std::vector<Ticket>();
+    _doneTickets = std::vector<Ticket>();
+    for (std::size_t i = 0; i < INGREDIENTS_COUNT; i++) {
+        _ingredients[(Ingredient)(i + 1)] = 5;
+    }
     for (std::size_t i = 0; i < _nbCooksMax; i++) {
         Cooks *cooker = new Cooks();
         coockersStruct cookerStruct = {cooker, Thread()};
@@ -30,123 +32,90 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, s
 void Kitchen::refill()
 {
     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastRefill >= _refillTime) {
-        _stocks.dough++;
-        _stocks.tomato++;
-        _stocks.gruyere++;
-        _stocks.ham++;
-        _stocks.mushrooms++;
-        _stocks.steak++;
-        _stocks.eggplant++;
-        _stocks.goatCheese++;
-        _stocks.chiefLove++;
+        for (std::size_t i = 0; i < INGREDIENTS_COUNT; i++) {
+            _ingredients[(Ingredient)(i + 1)]++;
+        }
         _lastRefill = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     }
 }
 
-bool Kitchen::addCommand(Command &command)
+bool Kitchen::addTicket(Ticket &ticket)
 {
-    if (_commandQueue.size() >= 2 * _nbCooksMax)
+    if (_ticketQueue.size() >= 2 * _nbCooksMax)
         return false;
-    _commandQueue.push_back(command);
-    std::cout << "New command " << command.command << " added to the queue" << std::endl;
+    _ticketQueue.push_back(ticket);
+    std::cout << "New ticket " << ticket.getUuid() << " added to the queue" << std::endl;
     return true;
 }
 
-std::size_t Kitchen::getCommandQueueSize()
+std::size_t Kitchen::getTicketQueueSize()
 {
-    return _commandQueue.size();
+    return _ticketQueue.size();
 }
 
 void Kitchen::loop()
 {
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(5)) {
         refill();
-        updateCommands();
+        updateTickets();
     }
 }
 
-void Kitchen::updateCommands()
+void Kitchen::updateTickets()
 {
-    if (_commandQueue.size() > 0) {
-        for (auto command : _commandQueue) {
-            if (!canCook(command.pizzas.front().getType()))
+    if (_ticketQueue.size() <= 0)
+        return;
+    for (auto &ticket : _ticketQueue) {
+        if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
+            continue;
+        for (auto cooker : _cookers) {
+            if (cooker.cooker->getIsCooking())
                 continue;
-            for (auto cooker : _cookers) {
-                if (cooker.cooker->getIsCooking())
-                    continue;
-                CookPackage *package = new CookPackage();
-                package->_doneCommandsList = &_doneCommands;
-                package->command.pizzas.push_back(command.pizzas.front());
-                if (package->command.pizzas.front().getType() == Regina) {
-                    package->timeToCook = 2;
-                } else {
-                    package->timeToCook = package->command.pizzas.front().getType() / 2;
-                }
-                package->timeToCook *= _cookTimeMultiplier;
-                package->cooker = cooker.cooker;
-                cooker.thread.create(Cooks::cook, (void*)package);
-                removeIngredients(package->command.pizzas.front().getType());
-                _commandQueue.erase(findCommand(command));
-                _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
-                break;
+            ticket.setBeingProcessed(true);
+            CookPackage *package = new CookPackage(&ticket, 0, cooker.cooker, &_doneTickets);
+            if (package->ticket->getPizza().getType() == Pizza::Regina) {
+                package->timeToCook = 2;
+            } else {
+                package->timeToCook = package->ticket->getPizza().getType() / 2;
             }
-            if (_commandQueue.size() == 0)
-                return;
+            package->timeToCook *= _cookTimeMultiplier;
+            cooker.thread.create(Cooks::cook, (void*)package);
+            removeIngredients(ticket.getPizza().getType());
+            _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+            break;
+        }
+    }
+    for (auto &ticket : _ticketQueue) {
+        if (ticket.isDone()) {
+            auto it = findTicket(ticket);
+            _ticketQueue.erase(it);
         }
     }
     //todo send done command to reception
     return;
 }
 
-bool Kitchen::canCook(PizzaType pizzaType)
+bool Kitchen::canCook(Pizza::Type pizzaType)
 {
-    if (pizzaType == Regina) {
-        if (_stocks.dough >= 1 && _stocks.tomato >= 1 && _stocks.gruyere >= 1 && _stocks.ham >= 1 && _stocks.mushrooms >= 1)
-            return true;
-    } else if (pizzaType == Margarita) {
-        if (_stocks.dough >= 1 && _stocks.tomato >= 1 && _stocks.gruyere >= 1)
-            return true;
-    } else if (pizzaType == Americana) {
-        if (_stocks.dough >= 1 && _stocks.tomato >= 1 && _stocks.gruyere >= 1 && _stocks.steak >= 1)
-            return true;
-    } else if (pizzaType == Fantasia) {
-        if (_stocks.dough >= 1 && _stocks.tomato >= 1 && _stocks.eggplant >= 1 && _stocks.goatCheese >= 1 && _stocks.chiefLove >= 1)
-            return true;
+    for (auto ingredient : RECIPIES.at(pizzaType).getIngredients()) {
+        if (_ingredients[ingredient] == 0)
+            return false;
     }
-    return false;
+    return true;
 }
 
-void Kitchen::removeIngredients(PizzaType pizzaType)
+void Kitchen::removeIngredients(Pizza::Type pizzaType)
 {
-    if (pizzaType == Regina) {
-        _stocks.dough--;
-        _stocks.tomato--;
-        _stocks.gruyere--;
-        _stocks.ham--;
-        _stocks.mushrooms--;
-    } else if (pizzaType == Margarita) {
-        _stocks.dough--;
-        _stocks.tomato--;
-        _stocks.gruyere--;
-    } else if (pizzaType == Americana) {
-        _stocks.dough--;
-        _stocks.tomato--;
-        _stocks.gruyere--;
-        _stocks.steak--;
-    } else if (pizzaType == Fantasia) {
-        _stocks.dough--;
-        _stocks.tomato--;
-        _stocks.eggplant--;
-        _stocks.goatCheese--;
-        _stocks.chiefLove--;
+    for (auto ingredient : RECIPIES.at(pizzaType).getIngredients()) {
+        _ingredients[ingredient]--;
     }
 }
 
-std::vector<Command>::const_iterator Kitchen::findCommand(Command command) {
+std::vector<Ticket>::const_iterator Kitchen::findTicket(Ticket &ticket) {
     std::size_t i = 0;
-    for (; i < _commandQueue.size(); i++) {
-        if (command == _commandQueue[i])
+    for (; i < _ticketQueue.size(); i++) {
+        if (ticket == _ticketQueue[i])
             break;
     }
-    return _commandQueue.begin() + i;
+    return _ticketQueue.begin() + i;
 }

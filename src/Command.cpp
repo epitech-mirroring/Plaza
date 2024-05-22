@@ -37,10 +37,6 @@ void Command::addPizza(const Pizza &pizza) {
     this->_pizzas.push_back(pizza);
 }
 
-void Command::removePizza(const Pizza &pizza) {
-    this->_pizzas.erase(std::remove(this->_pizzas.begin(), this->_pizzas.end(), pizza), this->_pizzas.end());
-}
-
 bool Command::operator==(const Command &other) const {
     return this->_uuid == other._uuid;
 }

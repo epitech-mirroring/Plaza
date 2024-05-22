@@ -7,8 +7,7 @@
 */
 
 #pragma once
-#include "Pizza.hpp"
-#include "Command.hpp"
+#include "Ticket.hpp"
 
 class Cooks {
     public:

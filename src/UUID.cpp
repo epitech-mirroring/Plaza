@@ -28,6 +28,7 @@ void UUID::setNative(const uuid_t &uuid) {
     uuid_copy(this->_uuid, uuid);
 }
 
+
 std::string UUID::toString(bool lowercase) const {
     uuid_string_t str;
 

@@ -19,13 +19,14 @@ void *Cooks::cook(void *param)
 {
     struct CookPackage *cookPackage = (struct CookPackage *)param;
     cookPackage->cooker->_isCooking = true;
-    std::cout << "Cooking an " << cookPackage->command.pizzas.front().getSize() << " " << cookPackage->command.pizzas.front().getType() << std::endl;
+    std::cout << "Cooking an " << cookPackage->ticket->getPizza().getSize() << " " << cookPackage->ticket->getPizza().getType() << std::endl;
     Timer::wait(cookPackage->timeToCook, MICROSECONDS);
     cookPackage->cooker->_isCooking = false;
-    std::cout << cookPackage->command.pizzas.front().getType() << " " << cookPackage->command.pizzas.front().getSize() << " has been cook with love" << std::endl;
+    std::cout << cookPackage->ticket->getPizza().getType() << " " << cookPackage->ticket->getPizza().getSize() << " has been cook with love" << std::endl;
 
-    Command command = cookPackage->command;
-    cookPackage->_doneCommandsList->push_back(command);
+    cookPackage->_doneCommandsList->push_back(*cookPackage->ticket);
+    cookPackage->ticket->setBeingProcessed(false);
+    cookPackage->ticket->setDone(true);
     delete cookPackage;
     return nullptr;
 }

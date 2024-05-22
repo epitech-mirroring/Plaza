@@ -10,6 +10,8 @@
 #include <uuid/uuid.h>
 #include <string>
 
+typedef char uuid_string_t[37];
+
 class UUID {
 protected:
     uuid_t _uuid{};

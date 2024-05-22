@@ -37,4 +37,6 @@ public:
 
     Ticket &operator=(const Ticket &other);
     friend std::ostream &operator<<(std::ostream &os, const Ticket &ticket);
+
+    bool operator==(const Ticket &other) const;
 };
