@@ -7,6 +7,7 @@
 */
 
 #include "Command.hpp"
+#include <algorithm>
 
 Command::Command() {
     this->_uuid = UUID();
