@@ -10,7 +10,6 @@
 #include <threads.h>
 #include <bits/pthreadtypes.h>
 
-
 class Thread {
     public :
         Thread();

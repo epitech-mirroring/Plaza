@@ -24,7 +24,7 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, s
     }
     for (std::size_t i = 0; i < _nbCooksMax; i++) {
         Cooks *cooker = new Cooks();
-        coockersStruct cookerStruct = {cooker, Thread()};
+        CoockersStruct cookerStruct = {cooker, Thread()};
         _cookers.push_back(cookerStruct);
     }
 }

@@ -14,7 +14,7 @@
 #include <chrono>
 #include <map>
 
-struct coockersStruct {
+struct CoockersStruct {
     Cooks *cooker;
     Thread thread;
 };
@@ -23,7 +23,7 @@ class Kitchen {
 protected:
     std::vector<Ticket> _ticketQueue;
     std::vector<Ticket> _doneTickets;
-    std::vector<coockersStruct> _cookers;
+    std::vector<CoockersStruct> _cookers;
     std::size_t _nbCooksMax;
     std::chrono::milliseconds _refillTime;
     std::chrono::milliseconds _lastRefill;
