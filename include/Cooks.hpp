@@ -14,7 +14,7 @@ class Cooks {
         Cooks();
         ~Cooks() = default;
         static void *cook(void *param);
-        bool getIsCooking();
+        bool getIsCooking() const;
     private:
         bool _isCooking;
 };

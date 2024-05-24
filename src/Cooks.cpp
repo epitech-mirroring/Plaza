@@ -17,7 +17,7 @@ Cooks::Cooks()
 
 void *Cooks::cook(void *param)
 {
-    struct CookPackage *cookPackage = (struct CookPackage *)param;
+    auto *cookPackage = (struct CookPackage *)param;
     cookPackage->cooker->_isCooking = true;
     std::cout << "Cooking an " << cookPackage->ticket->getPizza().getSize() << " " << cookPackage->ticket->getPizza().getType() << std::endl;
     Timer::wait(cookPackage->timeToCook, MICROSECONDS);
@@ -31,7 +31,7 @@ void *Cooks::cook(void *param)
     return nullptr;
 }
 
-bool Cooks::getIsCooking()
+bool Cooks::getIsCooking() const
 {
     return _isCooking;
 }

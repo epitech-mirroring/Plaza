@@ -23,7 +23,7 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, s
         _ingredients[(Ingredient)(i + 1)] = 5;
     }
     for (std::size_t i = 0; i < _nbCooksMax; i++) {
-        Cooks *cooker = new Cooks();
+        auto *cooker = new Cooks();
         CoockersStruct cookerStruct = {cooker, Thread()};
         _cookers.push_back(cookerStruct);
     }
@@ -79,7 +79,7 @@ void Kitchen::updateTickets()
                 package->timeToCook = package->ticket->getPizza().getType() / 2;
             }
             package->timeToCook *= _cookTimeMultiplier;
-            cooker.thread.create(Cooks::cook, (void*)package);
+            cooker.thread.start(Cooks::cook, package);
             removeIngredients(ticket.getPizza().getType());
             _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
             break;

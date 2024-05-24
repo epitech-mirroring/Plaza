@@ -9,6 +9,7 @@
 #pragma once
 #include <uuid/uuid.h>
 #include <string>
+#include <iostream>
 
 #ifndef _UUID_STRING_T
     #define _UUID_STRING_T

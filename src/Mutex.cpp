@@ -10,7 +10,7 @@
 
 Mutex::Mutex()
 {
-    pthread_mutex_init(&_mutex, NULL);
+    pthread_mutex_init(&_mutex, nullptr);
 }
 
 Mutex::Mutex(const Mutex &mutex)

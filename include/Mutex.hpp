@@ -7,9 +7,7 @@
 */
 
 #pragma once
-#include <threads.h>
-#include <bits/pthreadtypes.h>
-#include <signal.h>
+#include <csignal>
 #include <pthread.h>
 
 class Mutex {
@@ -22,5 +20,5 @@ class Mutex {
         void trylock();
         Mutex &operator=(const Mutex &mutex);
     private :
-        pthread_mutex_t _mutex;
+        pthread_mutex_t _mutex{};
 };

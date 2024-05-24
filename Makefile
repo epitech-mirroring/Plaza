@@ -17,7 +17,8 @@ CXX_SOURCES		= 	src/main.cpp										\
 					src/Ingredient.cpp									\
 					src/Command.cpp										\
 					src/Thread.cpp										\
-                    src/Mutex.ccp                                       \
+                    src/Mutex.cpp                                       \
+                    src/Timer.cpp									   	\
                     src/ScopeLock.cpp                                   \
 					src/AbstractTicketBoard.cpp							\
 					src/MasterTicketBoard.cpp							\
