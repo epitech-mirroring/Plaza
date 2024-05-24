@@ -8,6 +8,8 @@
 
 # All the source files
 CXX_SOURCES		= 	src/main.cpp										\
+					src/Kitchen.cpp		                                \
+                    src/Cooks.cpp                                       \
 					src/Recipe.cpp										\
 					src/UUID.cpp										\
 					src/Ticket.cpp										\
@@ -15,6 +17,8 @@ CXX_SOURCES		= 	src/main.cpp										\
 					src/Ingredient.cpp									\
 					src/Command.cpp										\
 					src/Thread.cpp										\
+                    src/Mutex.ccp                                       \
+                    src/ScopeLock.cpp                                   \
 					src/AbstractTicketBoard.cpp							\
 					src/MasterTicketBoard.cpp							\
 

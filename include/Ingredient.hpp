@@ -9,6 +9,8 @@
 #pragma once
 #include <ostream>
 
+#define INGREDIENTS_COUNT 9
+
 enum Ingredient {
     Dough = 1,
     Tomato = 2,

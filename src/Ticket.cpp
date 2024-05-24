@@ -77,3 +77,9 @@ Ticket& Ticket::operator=(const Ticket& other) {
 std::ostream& operator<<(std::ostream& os, const Ticket& ticket) {
     return os << "Ticket{uuid=" << ticket.getUuid() << ", commandUuid=" << ticket.getCommandUuid() << ", pizza=" << ticket.getPizza() << ", pizzaIndex=" << ticket.getPizzaIndex() << ", isDone=" << ticket.isDone() << ", isBeingProcessed=" << ticket.isBeingProcessed() << "}";
 }
+
+bool Ticket::operator==(const Ticket& other) const {
+    if (this == &other)
+        return true;
+    return this->_uuid == other._uuid && this->_commandUuid == other._commandUuid && this->_pizza == other._pizza && this->_pizzaIndex == other._pizzaIndex && this->_isDone == other._isDone && this->_isBeingProcessed == other._isBeingProcessed;
+}
