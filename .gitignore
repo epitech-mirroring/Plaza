@@ -89,3 +89,6 @@ Temporary Items
 .idea/
 *.lock*
 node_modules/
+*.json
+*.log
+plazza

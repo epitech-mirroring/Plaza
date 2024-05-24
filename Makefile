@@ -7,7 +7,19 @@
 ##
 
 # All the source files
-CXX_SOURCES		= 	src/main.cpp										\
+CXX_SOURCES		= 	src/Cooks.cpp		\
+					src/Kitchen.cpp		\
+					src/main.cpp		\
+					src/Mutex.cpp		\
+					src/Pizza.cpp		\
+					src/ScopeLock.cpp	\
+					src/Thread.cpp		\
+					src/Timer.cpp		\
+					src/UUID.cpp		\
+					src/Ticket.cpp		\
+					src/Ingredient.cpp	\
+					src/Command.cpp		\
+					src/Recipe.cpp		\
 
 CXX_TESTS		=
 
@@ -16,18 +28,17 @@ LIBS			=
 # Compiler and linker settings
 NAME 			= 	plazza
 CXX				= 	g++
-CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include  \
-				 	-L./libs
+CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include -L./libs
 MACOS_FLAGS		=
-LINUX_FLAGS		=
+LINUX_FLAGS		= 	-luuid
 CXXFLAGS		+=	$(shell [ `uname -s` = "Darwin" ] && echo $(MACOS_FLAGS))
 CXXFLAGS		+=	$(shell [ `uname -s` = "Linux" ] && echo $(LINUX_FLAGS))
 CXX_OBJS		= 	$(CXX_SOURCES:.cpp=.o)
 CXX_TESTS_OBJS	= 	$(CXX_TESTS:.cpp=.o)
 LOG				=	./build.log
 
-.PHONY: all clean fclean re tests_run \
-	clean_test $(LIBS) clean_libs fclean_libs clion _tests_run
+.PHONY: all clean fclean re tests_run clean_test $(LIBS) clean_libs \
+	fclean_libs clion _tests_run
 
 # Colors and formatting
 GREEN =		\033[1;32m

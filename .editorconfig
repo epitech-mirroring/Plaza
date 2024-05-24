@@ -12,6 +12,10 @@ trim_trailing_whitespace = false
 [{*.cpp,*.hpp}]
 indent_style = space
 indent_size = 4
+ij_c_block_brace_style = end_of_line
+ij_c_class_brace_style = end_of_line
+ij_any_block_brace_style = end_of_line
+ij_any_class_brace_style = end_of_line
 
 [Makefile]
 indent_style = tab
