@@ -9,7 +9,7 @@
 #include "Thread.hpp"
 
 Thread::Thread() {
-    _thread = nullptr;
+    _thread = 0;
 }
 
 Thread::~Thread() {
