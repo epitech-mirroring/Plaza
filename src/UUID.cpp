@@ -29,7 +29,7 @@ void UUID::setNative(const uuid_t &uuid) {
 }
 
 std::string UUID::toString(bool lowercase) const {
-    char str[37];
+    uuid_string_t str;
 
     if (lowercase)
         uuid_unparse_lower(this->_uuid, str);

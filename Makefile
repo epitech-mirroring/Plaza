@@ -14,6 +14,9 @@ CXX_SOURCES		= 	src/main.cpp										\
 					src/Pizza.cpp										\
 					src/Ingredient.cpp									\
 					src/Command.cpp										\
+					src/Thread.cpp										\
+					src/AbstractTicketBoard.cpp							\
+					src/MasterTicketBoard.cpp							\
 
 CXX_TESTS		=
 

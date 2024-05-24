@@ -6,8 +6,7 @@
 ** You can even have multiple lines if you want !
 */
 
-int main(int ac, char **av)
-{
+int main(int ac, char **av) {
     (void)ac;
     (void)av;
     return 0;
