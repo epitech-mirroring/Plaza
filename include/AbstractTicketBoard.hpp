@@ -45,6 +45,8 @@ public:
         ASSIGNED,
         MARKED_AS_DONE
     };
+
+    static const std::unordered_map<MessageType, TicketEventType> RELATION_MAP;
 protected:
     std::vector<Ticket> _tickets;
     std::unordered_map<TicketEventType, std::vector<TicketCallback>> _callbacks;

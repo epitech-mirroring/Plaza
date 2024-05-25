@@ -66,14 +66,7 @@ void MasterTicketBoard::_handleMessage(const std::string &message) {
                 return ticket.getUuid() == ticket_uuid;
             })[0];
 
-            const std::unordered_map<MessageType, TicketEventType> relation_map = {
-                    {MessageType::TICKET_ASSIGNED, TicketEventType::ASSIGNED},
-                    {MessageType::TICKET_MARKED_AS_DONE, TicketEventType::MARKED_AS_DONE},
-                    {MessageType::TICKET_REQUEST_ASSIGNMENT, TicketEventType::REQUESTED_ASSIGNMENT},
-                    {MessageType::NEW_TICKET, TicketEventType::ADDED}
-            };
-
-            TicketEventType event_type = relation_map.at(type);
+            TicketEventType event_type = RELATION_MAP.at(type);
             for (const auto &callback : _callbacks[event_type]) {
                 callback(*ticket, message);
             }

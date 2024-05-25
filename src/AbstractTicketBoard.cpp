@@ -16,6 +16,13 @@ const std::unordered_map<MessageType, std::pair<std::string, std::string>> MESSA
         {MessageType::TICKET_MARKED_AS_DONE, {TICKET_MARKED_AS_DONE_MESSAGE, TICKET_MARKED_AS_DONE_REGEX}}
 };
 
+const std::unordered_map<MessageType, AbstractTicketBoard::TicketEventType>  AbstractTicketBoard::RELATION_MAP = {
+    {MessageType::TICKET_ASSIGNED, AbstractTicketBoard::TicketEventType::ASSIGNED},
+    {MessageType::TICKET_MARKED_AS_DONE, AbstractTicketBoard::TicketEventType::MARKED_AS_DONE},
+    {MessageType::TICKET_REQUEST_ASSIGNMENT, AbstractTicketBoard::TicketEventType::REQUESTED_ASSIGNMENT},
+    {MessageType::NEW_TICKET, AbstractTicketBoard::TicketEventType::ADDED}
+};
+
 AbstractTicketBoard::AbstractTicketBoard(Role role) {
     this->_role = role;
 }
