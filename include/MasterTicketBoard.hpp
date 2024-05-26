@@ -23,6 +23,7 @@ class MasterTicketBoard : public AbstractTicketBoard {
 protected:
     Thread _thread;
     std::unordered_map<int, std::queue<std::string>> _slaves;
+    std::vector<int> _slaveToDelete;
 
     void _acceptSlaves();
     void _handleSlave(int slave);

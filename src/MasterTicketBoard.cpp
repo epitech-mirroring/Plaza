@@ -13,7 +13,7 @@
 #include "MasterTicketBoard.hpp"
 
 MasterTicketBoard::MasterTicketBoard(): AbstractTicketBoard(MASTER) {
-
+    this->_slaveToDelete = std::vector<int>();
 }
 
 MasterTicketBoard::~MasterTicketBoard() = default;
@@ -33,8 +33,8 @@ void MasterTicketBoard::_handleSlave(int slave) {
     std::size_t size = recv(slave, buffer, 1024, 0);
     if (size == 0) {
         std::cerr << "Slave disconnected" << std::endl;
-        _slaves.erase(slave);
         close(slave);
+        _slaveToDelete.push_back(slave);
     } else {
         std::string message(buffer, size);
         _handleMessage(message, slave);
@@ -145,6 +145,7 @@ void MasterTicketBoard::run() {
             for (auto &[slave_fd, queue] : _slaves) {
                 if (FD_ISSET(slave_fd, &readfds)) {
                     _handleSlave(slave_fd);
+                    continue;
                 }
                 if (FD_ISSET(slave_fd, &writefds)) {
                     if (!queue.empty()) {
@@ -156,6 +157,10 @@ void MasterTicketBoard::run() {
                     }
                 }
             }
+            for (int slave : _slaveToDelete) {
+                _slaves.erase(slave);
+            }
+            _slaveToDelete.clear();
         }
         return nullptr;
     }, nullptr);
