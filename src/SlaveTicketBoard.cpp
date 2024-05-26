@@ -40,6 +40,7 @@ void SlaveTicketBoard::_handleMaster(const std::string &message) {
                 command_uuid.fromString(match[1]);
                 UUID ticket_uuid = UUID();
                 ticket_uuid.fromString(match[2]);
+                _mutex.lock();
                 const Ticket *ticket = std::find_if(_tickets.begin(),
                                                     _tickets.end(),
                                                     [ticket_uuid](
@@ -47,7 +48,7 @@ void SlaveTicketBoard::_handleMaster(const std::string &message) {
                                                         return ticket.getUuid() ==
                                                                ticket_uuid;
                                                     }).base();
-
+                _mutex.unlock();
                 TicketEventType event_type = RELATION_MAP.at(type);
                 for (const auto &callback: _callbacks[event_type]) {
                     callback(ticket, msg);
@@ -105,16 +106,36 @@ void SlaveTicketBoard::run()
 }
 
 void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
+    _mutex.lock();
     Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket &ticket) {
         return ticket.getUuid() == uuid;
     }).base();
 
     if (ticket == nullptr) {
+        _mutex.unlock();
         throw TicketBoardException("Failed to find ticket with UUID " + uuid.toString());
     }
 
+    ticket->setBeingProcessed(false);
+    ticket->setDone(true);
+    _mutex.unlock();
     std::string formatedMessage = Format::formatString(TICKET_MARKED_AS_DONE_MESSAGE, ticket->getCommandUuid().toString().c_str(), ticket->getUuid().toString().c_str());
     _queue.push(formatedMessage);
+}
+
+void SlaveTicketBoard::markTicketAsBeingProcessed(const UUID &uuid) {
+    _mutex.lock();
+    Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket &ticket) {
+        return ticket.getUuid() == uuid;
+    }).base();
+
+    if (ticket == nullptr) {
+        _mutex.unlock();
+        throw TicketBoardException("Failed to find ticket with UUID " + uuid.toString());
+    }
+
+    ticket->setBeingProcessed(true);
+    _mutex.unlock();
 }
 
 Thread *SlaveTicketBoard::operator->() {

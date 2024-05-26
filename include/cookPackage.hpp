@@ -8,12 +8,19 @@
 
 #pragma once
 #include <iostream>
-#include "Cooks.hpp"
+#include "SlaveTicketBoard.hpp"
+#include "Mutex.hpp"
 
 struct CookPackage {
     Ticket *ticket;
     float timeToCook;
-    Cooks *cooker;
-    std::vector<Ticket> *_doneCommandsList;
-    CookPackage(Ticket *ticket, std::size_t timeToCook, Cooks *cooker, std::vector<Ticket> *doneCommandsList) : ticket(ticket), timeToCook(timeToCook), cooker(cooker), _doneCommandsList(doneCommandsList) {}
+    SlaveTicketBoard *slaveTicketBoard;
+    Mutex *mutex;
+    CookPackage(Ticket *ticket, float timeToCook, SlaveTicketBoard *slaveTicketBoard, Mutex *mutex)
+    {
+        this->ticket = ticket;
+        this->timeToCook = timeToCook;
+        this->slaveTicketBoard = slaveTicketBoard;
+        this->mutex = mutex;
+    }
 };

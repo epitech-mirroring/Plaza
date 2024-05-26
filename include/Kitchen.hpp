@@ -15,16 +15,9 @@
 #include <chrono>
 #include <map>
 
-struct CoockersStruct {
-    Cooks *cooker;
-    Thread thread;
-};
-
 class Kitchen {
 protected:
-    std::vector<Ticket> _ticketQueue;
-    std::vector<Ticket> _doneTickets;
-    std::vector<CoockersStruct> _cookers;
+    std::vector<Cooks *> _cookers;
     std::size_t _nbCooksMax;
     std::chrono::milliseconds _refillTime;
     std::chrono::milliseconds _lastRefill;
@@ -32,16 +25,15 @@ protected:
     float _cookTimeMultiplier;
     std::map<Ingredient, std::size_t> _ingredients;
     SlaveTicketBoard _slaveTicketBoard;
-    Mutex _ticketQueueMutex;
 public:
     Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, float cookTimeMultiplier);
     ~Kitchen() = default;
     void refill();
     bool addTicket(Ticket &ticket);
-    std::size_t getTicketQueueSize();
     void loop();
     void updateTickets();
     bool canCook(Pizza::Type pizzaType);
     void removeIngredients(Pizza::Type pizzaType);
-    std::vector<Ticket>::const_iterator findTicket(Ticket &ticket);
+
+    [[nodiscard]] std::size_t getCountOfCurrentlyCookingCooks() const;
 };

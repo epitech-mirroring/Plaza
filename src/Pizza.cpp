@@ -14,6 +14,11 @@ Pizza::Pizza(Pizza::Type type, Pizza::Size size) {
     this->_size = size;
 }
 
+Pizza::Pizza(const Pizza &other) {
+    this->_type = other._type;
+    this->_size = other._size;
+}
+
 Pizza::~Pizza() = default;
 
 Pizza::Type Pizza::getType() const {
@@ -43,6 +48,14 @@ bool Pizza::operator!=(const Pizza &other) const {
 std::ostream &operator<<(std::ostream &os, const Pizza &pizza) {
     os << pizza.getType() << " " << pizza.getSize();
     return os;
+}
+
+Pizza &Pizza::operator=(const Pizza &other) {
+    if (this == &other)
+        return *this;
+    this->_type = other._type;
+    this->_size = other._size;
+    return *this;
 }
 
 std::ostream &operator<<(std::ostream &os, const Pizza::Type &type) {

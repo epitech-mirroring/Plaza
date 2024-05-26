@@ -9,6 +9,7 @@
 #pragma once
 #include <functional>
 #include "Ticket.hpp"
+#include "Mutex.hpp"
 
 #define NEW_TICKET_MESSAGE "[%s-%s] New ticket, type: %s, size: %s\n"
 #define TICKET_REQUEST_ASSIGNMENT_MESSAGE "[{}-{}] Kitchen {} requested ticket assignment\n"
@@ -52,6 +53,7 @@ protected:
     bool _isRunning = false;
     Role _role;
     int _socket{};
+    Mutex _mutex;
 
     explicit AbstractTicketBoard(Role role);
 public:
@@ -66,6 +68,7 @@ public:
     [[nodiscard]] int getSocket() const;
 
     [[nodiscard]] const std::vector<Ticket> &getTickets() const;
+    [[nodiscard]] std::vector<Ticket> &getTickets();
 
     virtual void addCommand(const Command &command);
     virtual void removeAllTicketOfCommand(const Command &command);

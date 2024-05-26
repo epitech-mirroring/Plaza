@@ -25,19 +25,24 @@ const std::unordered_map<MessageType, AbstractTicketBoard::TicketEventType>  Abs
 
 AbstractTicketBoard::AbstractTicketBoard(Role role) {
     this->_role = role;
+    this->_mutex = Mutex();
 }
 
 AbstractTicketBoard::~AbstractTicketBoard() = default;
 
 void AbstractTicketBoard::addTicket(const Ticket &ticket) {
+    _mutex.lock();
     this->_tickets.push_back(ticket);
+    _mutex.unlock();
 }
 
 void AbstractTicketBoard::removeTicket(const UUID &ticketUUID) {
+    _mutex.lock();
     this->_tickets.erase(std::remove_if(this->_tickets.begin(), this->_tickets.end(),
         [ticketUUID](const Ticket &ticket) {
             return ticket.getUuid() == ticketUUID;
         }), this->_tickets.end());
+    _mutex.unlock();
 }
 
 static void supportsEventType(AbstractTicketBoard::Role role, AbstractTicketBoard::TicketEventType type) {
@@ -60,6 +65,10 @@ const std::vector<Ticket> &AbstractTicketBoard::getTickets() const {
     return this->_tickets;
 }
 
+std::vector<Ticket> &AbstractTicketBoard::getTickets() {
+    return this->_tickets;
+}
+
 int AbstractTicketBoard::getSocket() const {
     return this->_socket;
 }
@@ -71,30 +80,43 @@ void AbstractTicketBoard::addCommand(const Command &command) {
 }
 
 void AbstractTicketBoard::removeAllTicketOfCommand(const Command &command) {
+    _mutex.lock();
     this->_tickets.erase(std::remove_if(this->_tickets.begin(), this->_tickets.end(),
         [&command](const Ticket &ticket) {
             return ticket.getCommandUuid() == command.getUuid();
         }), this->_tickets.end());
+    _mutex.unlock();
 }
 
 void AbstractTicketBoard::markTicketAsDone(const UUID &ticketUUID) {
+    _mutex.lock();
     auto ticket = std::find_if(this->_tickets.begin(), this->_tickets.end(),
         [ticketUUID](const Ticket &ticket) {
             return ticket.getUuid() == ticketUUID;
         });
-    if (ticket == this->_tickets.end())
-        throw AbstractTicketBoard::TicketBoardTicketNotFoundException(ticketUUID);
+    if (ticket == this->_tickets.end()) {
+        _mutex.unlock();
+        throw AbstractTicketBoard::TicketBoardTicketNotFoundException(
+                ticketUUID);
+    }
     ticket->setDone(true);
+    ticket->setBeingProcessed(false);
+    _mutex.unlock();
 }
 
 void AbstractTicketBoard::markTicketAsBeingProcessed(const UUID &ticketUUID) {
+    _mutex.lock();
     auto ticket = std::find_if(this->_tickets.begin(), this->_tickets.end(),
         [ticketUUID](const Ticket &ticket) {
             return ticket.getUuid() == ticketUUID;
         });
-    if (ticket == this->_tickets.end())
-        throw AbstractTicketBoard::TicketBoardTicketNotFoundException(ticketUUID);
+    if (ticket == this->_tickets.end()) {
+        _mutex.unlock();
+        throw AbstractTicketBoard::TicketBoardTicketNotFoundException(
+                ticketUUID);
+    }
     ticket->setBeingProcessed(true);
+    _mutex.unlock();
 }
 
 void AbstractTicketBoard::stop() {

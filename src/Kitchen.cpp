@@ -18,15 +18,12 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, f
     _cookTimeMultiplier = cookTimeMultiplier;
     _lastRefill = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
-    _ticketQueue = std::vector<Ticket>();
-    _doneTickets = std::vector<Ticket>();
     for (std::size_t i = 0; i < INGREDIENTS_COUNT; i++) {
         _ingredients[(Ingredient)(i + 1)] = 5;
     }
     for (std::size_t i = 0; i < _nbCooksMax; i++) {
         auto *cooker = new Cooks();
-        CoockersStruct cookerStruct = {cooker, Thread()};
-        _cookers.push_back(cookerStruct);
+        _cookers.push_back(cooker);
     }
 }
 
@@ -42,19 +39,11 @@ void Kitchen::refill()
 
 bool Kitchen::addTicket(Ticket &ticket)
 {
-    if (_ticketQueue.size() >= 2 * _nbCooksMax)
+    if (getCountOfCurrentlyCookingCooks() >= _nbCooksMax)
         return false;
-    this->_ticketQueueMutex.lock();
     std::cout << "New ticket " << ticket.getUuid() << " added to the queue" << std::endl;
-    _ticketQueue.push_back(ticket);
     _slaveTicketBoard.addTicket(ticket);
-    this->_ticketQueueMutex.unlock();
     return true;
-}
-
-std::size_t Kitchen::getTicketQueueSize()
-{
-    return _ticketQueue.size();
 }
 
 void Kitchen::loop()
@@ -84,44 +73,33 @@ void Kitchen::loop()
 
 void Kitchen::updateTickets()
 {
-    if (_ticketQueue.empty())
-        return;
-    for (auto& ticket : _ticketQueue) {
+    for (auto& ticket : _slaveTicketBoard.getTickets()) {
         if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
             continue;
         for (auto cooker : _cookers) {
-            if (cooker.cooker->getIsCooking())
+            if (cooker->getIsCooking())
                 continue;
-            auto *package = new CookPackage(&ticket, 0, cooker.cooker, &_doneTickets);
-            if (package->ticket->getPizza().getType() == Pizza::Regina) {
-                package->timeToCook = 2.f;
+            float cookingTime = 0.f;
+            if (ticket.getPizza().getType() == Pizza::Regina) {
+                cookingTime = 2.f;
             } else {
-                package->timeToCook = (float) package->ticket->getPizza().getType() / 2.f;
+                cookingTime = (float) ticket.getPizza().getType() / 2.f;
             }
-            package->timeToCook *= _cookTimeMultiplier;
-            ticket.setBeingProcessed(true);
-            std::cout << ticket.getUuid() << std::endl;
-            cooker.thread.start(Cooks::cook, package);
+            cookingTime *= _cookTimeMultiplier;
+            cooker->getThread().start([this, &ticket, cooker, cookingTime](void *_) {
+                if (ticket.isDone() || ticket.isBeingProcessed())
+                    return nullptr;
+                Ticket cpy = ticket;
+                this->_slaveTicketBoard.markTicketAsBeingProcessed(cpy.getUuid());
+                cooker->cook(cpy, cookingTime);
+                this->_slaveTicketBoard.markTicketAsDone(cpy.getUuid());
+                return nullptr;
+            }, nullptr);
             removeIngredients(ticket.getPizza().getType());
             _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
             break;
         }
     }
-    this->_ticketQueueMutex.lock();
-    for (auto &ticketDone : _doneTickets) {
-        _slaveTicketBoard.markTicketAsDone(ticketDone.getUuid());
-        for (auto &ticket : _ticketQueue) {
-            if (ticket == ticketDone) {
-                ticket.setDone(true);
-                ticket.setBeingProcessed(false);
-                auto it = findTicket(ticket);
-                _ticketQueue.erase(it);
-            }
-        }
-    }
-    _doneTickets.clear();
-    this->_ticketQueueMutex.unlock();
-    return;
 }
 
 bool Kitchen::canCook(Pizza::Type pizzaType)
@@ -140,11 +118,12 @@ void Kitchen::removeIngredients(Pizza::Type pizzaType)
     }
 }
 
-std::vector<Ticket>::const_iterator Kitchen::findTicket(Ticket &ticket) {
-    std::size_t i = 0;
-    for (; i < _ticketQueue.size(); i++) {
-        if (ticket == _ticketQueue[i])
-            break;
+std::size_t Kitchen::getCountOfCurrentlyCookingCooks() const
+{
+    std::size_t count = 0;
+    for (const auto cooker : _cookers) {
+        if (cooker->getIsCooking())
+            count++;
     }
-    return _ticketQueue.begin() + i;
+    return count;
 }

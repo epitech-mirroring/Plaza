@@ -12,11 +12,23 @@ Ticket::Ticket(const Command& command, std::size_t pizzaIndex): _uuid(UUID()), _
 {
 }
 
-Ticket::Ticket(const UUID& ticketUuid, const UUID& commandUuid, const Pizza& pizza): _uuid(ticketUuid), _commandUuid(commandUuid), _pizza(pizza), _pizzaIndex(0), _isDone(false), _isBeingProcessed(false)
-{
+Ticket::Ticket(const UUID& ticketUuid, const UUID& commandUuid, const Pizza& pizza): _pizza(pizza) {
+    this->_uuid = ticketUuid;
+    this->_commandUuid = commandUuid;
+    this->_pizza = pizza;
+    this->_pizzaIndex = 0;
+    this->_isDone = false;
+    this->_isBeingProcessed = false;
 }
 
-Ticket::Ticket(const Ticket& other) = default;
+Ticket::Ticket(const Ticket& other): _pizza(other._pizza) {
+    this->_uuid = other._uuid;
+    this->_commandUuid = other._commandUuid;
+    this->_pizza = other._pizza;
+    this->_pizzaIndex = other._pizzaIndex;
+    this->_isDone = other._isDone;
+    this->_isBeingProcessed = other._isBeingProcessed;
+}
 
 const UUID& Ticket::getUuid() const {
     return this->_uuid;

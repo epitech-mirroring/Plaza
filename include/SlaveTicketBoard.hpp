@@ -31,7 +31,8 @@ public:
 
     void run() override;
 
-    void markTicketAsDone(const UUID& uuid);
+    void markTicketAsDone(const UUID& uuid) override;
+    void markTicketAsBeingProcessed(const UUID& uuid) override;
 
     Thread *operator->();
 };

@@ -8,13 +8,17 @@
 
 #pragma once
 #include "Ticket.hpp"
+#include "Thread.hpp"
+#include "SlaveTicketBoard.hpp"
 
 class Cooks {
-    public:
-        Cooks();
-        ~Cooks() = default;
-        static void *cook(void *param);
-        bool getIsCooking() const;
-    private:
-        bool _isCooking;
+protected:
+    bool _isCooking;
+    Thread _thread;
+public:
+    Cooks();
+    ~Cooks() = default;
+    void cook(Ticket ticket, float cookingTime);
+    [[nodiscard]] bool getIsCooking() const;
+    [[nodiscard]] Thread &getThread();
 };

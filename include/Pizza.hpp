@@ -32,6 +32,7 @@ protected:
 
 public:
     Pizza(Type type, Size size);
+    Pizza(const Pizza &other);
     ~Pizza();
 
     [[nodiscard]] Type getType() const;
@@ -39,6 +40,7 @@ public:
     void setType(Type type);
     void setSize(Size size);
 
+    Pizza &operator=(const Pizza &other);
     bool operator==(const Pizza &other) const;
     bool operator!=(const Pizza &other) const;
 
