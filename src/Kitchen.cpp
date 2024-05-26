@@ -74,7 +74,7 @@ void Kitchen::loop()
             addTicket(newTicket);
         }
     }, AbstractTicketBoard::TicketEventType::ADDED);
-    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(15)) {
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(5)) {
         refill();
         updateTickets();
     }
