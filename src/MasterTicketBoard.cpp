@@ -74,11 +74,11 @@ void MasterTicketBoard::_handleMessage(const std::string &msg, int sender) {
                     command_uuid.fromString(match[1]);
                     UUID ticket_uuid = UUID();
                     ticket_uuid.fromString(match[2]);
-                    const Ticket *ticket = std::find_if(_tickets.begin(),
+                    const Ticket *ticket = *std::find_if(_tickets.begin(),
                                                         _tickets.end(),
                                                         [ticket_uuid](
-                                                                const Ticket &ticket) {
-                                                            return ticket.getUuid() ==
+                                                                const Ticket *ticket) {
+                                                            return ticket->getUuid() ==
                                                                    ticket_uuid;
                                                         }).base();
 
@@ -169,22 +169,24 @@ void MasterTicketBoard::run() {
 void MasterTicketBoard::addCommand(const Command &command) {
     // Add the command to the list of commands
     // The command should be sent to all slaves
+    _mutex.lock();
     for (std::size_t i = 0; i < command.getPizzas().size(); i++) {
-        Ticket ticket(command, i);
+        auto *ticket = new Ticket(command, i);
         this->_tickets.push_back(ticket);
-        std::string formatedMessage = Format::formatString(NEW_TICKET_MESSAGE, command.getUuid().toString().c_str(), ticket.getUuid().toString().c_str(), Pizza::typeToString(ticket.getPizza().getType()).c_str(), Pizza::sizeToString(ticket.getPizza().getSize()).c_str());
+        std::string formatedMessage = Format::formatString(NEW_TICKET_MESSAGE, command.getUuid().toString().c_str(), ticket->getUuid().toString().c_str(), Pizza::typeToString(ticket->getPizza().getType()).c_str(), Pizza::sizeToString(ticket->getPizza().getSize()).c_str());
         for (auto &[slave, queue] : _slaves) {
             queue.push(formatedMessage);
         }
     }
+    _mutex.unlock();
 }
 
 void MasterTicketBoard::resendNotAskedTicket() {
     // Resend all the ticket that have not been asked to the slaves
     _mutex.lock();
-    for (const auto &ticket : _tickets) {
-        if (!ticket.hasBeenAsked()) {
-            std::string formatedMessage = Format::formatString(NEW_TICKET_MESSAGE, ticket.getCommandUuid().toString().c_str(), ticket.getUuid().toString().c_str(), Pizza::typeToString(ticket.getPizza().getType()).c_str(), Pizza::sizeToString(ticket.getPizza().getSize()).c_str());
+    for (const auto ticket : _tickets) {
+        if (!ticket->hasBeenAsked()) {
+            std::string formatedMessage = Format::formatString(NEW_TICKET_MESSAGE, ticket->getCommandUuid().toString().c_str(), ticket->getUuid().toString().c_str(), Pizza::typeToString(ticket->getPizza().getType()).c_str(), Pizza::sizeToString(ticket->getPizza().getSize()).c_str());
             for (auto &[slave, queue] : _slaves) {
                 queue.push(formatedMessage);
             }

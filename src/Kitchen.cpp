@@ -37,11 +37,11 @@ void Kitchen::refill()
     }
 }
 
-bool Kitchen::addTicket(Ticket &ticket)
+bool Kitchen::addTicket(Ticket *ticket)
 {
     if (getCountOfCurrentlyCookingCooks() >= _nbCooksMax)
         return false;
-    std::cout << "New ticket " << ticket.getUuid() << " added to the queue" << std::endl;
+    std::cout << "New ticket " << ticket->getUuid() << " added to the queue" << std::endl;
     _slaveTicketBoard.addTicket(ticket);
     return true;
 }
@@ -59,7 +59,7 @@ void Kitchen::loop()
             ticket_uuid.fromString(match[2]);
             Pizza::Type type = Pizza::parseType(match[3]);
             Pizza::Size size = Pizza::parseSize(match[4]);
-            Ticket newTicket(ticket_uuid, command, Pizza(type, size));
+            Ticket *newTicket = new Ticket(ticket_uuid, command, Pizza(type, size));
             addTicket(newTicket);
         }
     }, AbstractTicketBoard::TicketEventType::ADDED);
@@ -73,30 +73,29 @@ void Kitchen::loop()
 
 void Kitchen::updateTickets()
 {
-    for (auto& ticket : _slaveTicketBoard.getTickets()) {
+    for (auto ticket : _slaveTicketBoard.getTickets()) {
         usleep(10);
-        if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
+        if (!canCook(ticket->getPizza().getType()) || ticket->isBeingProcessed() || ticket->isDone())
             continue;
         for (auto cooker : _cookers) {
             if (cooker->getIsCooking())
                 continue;
             float cookingTime = 0.f;
-            if (ticket.getPizza().getType() == Pizza::Regina) {
+            if (ticket->getPizza().getType() == Pizza::Regina) {
                 cookingTime = 2.f;
             } else {
-                cookingTime = (float) ticket.getPizza().getType() / 2.f;
+                cookingTime = (float) ticket->getPizza().getType() / 2.f;
             }
             cookingTime *= _cookTimeMultiplier;
-            cooker->getThread().start([this, &ticket, cooker, cookingTime](void *_) {
-                if (ticket.isDone() || ticket.isBeingProcessed())
+            cooker->getThread().start([this, ticket, cooker, cookingTime](void *_) {
+                if (ticket->isDone() || ticket->isBeingProcessed())
                     return nullptr;
-                Ticket cpy = ticket;
-                this->_slaveTicketBoard.markTicketAsBeingProcessed(cpy.getUuid());
-                cooker->cook(cpy, cookingTime);
-                this->_slaveTicketBoard.markTicketAsDone(cpy.getUuid());
+                this->_slaveTicketBoard.markTicketAsBeingProcessed(ticket->getUuid());
+                cooker->cook(ticket, cookingTime);
+                this->_slaveTicketBoard.markTicketAsDone(ticket->getUuid());
                 return nullptr;
             }, nullptr);
-            removeIngredients(ticket.getPizza().getType());
+            removeIngredients(ticket->getPizza().getType());
             _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
             break;
         }

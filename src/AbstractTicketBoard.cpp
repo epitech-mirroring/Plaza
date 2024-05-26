@@ -30,7 +30,7 @@ AbstractTicketBoard::AbstractTicketBoard(Role role) {
 
 AbstractTicketBoard::~AbstractTicketBoard() = default;
 
-void AbstractTicketBoard::addTicket(const Ticket &ticket) {
+void AbstractTicketBoard::addTicket(Ticket *ticket) {
     _mutex.lock();
     this->_tickets.push_back(ticket);
     _mutex.unlock();
@@ -39,8 +39,8 @@ void AbstractTicketBoard::addTicket(const Ticket &ticket) {
 void AbstractTicketBoard::removeTicket(const UUID &ticketUUID) {
     _mutex.lock();
     this->_tickets.erase(std::remove_if(this->_tickets.begin(), this->_tickets.end(),
-        [ticketUUID](const Ticket &ticket) {
-            return ticket.getUuid() == ticketUUID;
+        [ticketUUID](const Ticket *ticket) {
+            return ticket->getUuid() == ticketUUID;
         }), this->_tickets.end());
     _mutex.unlock();
 }
@@ -61,11 +61,11 @@ void AbstractTicketBoard::addListener(const TicketCallback &callback, TicketEven
     this->_callbacks[type].push_back(callback);
 }
 
-const std::vector<Ticket> &AbstractTicketBoard::getTickets() const {
+const std::vector<Ticket *> &AbstractTicketBoard::getTickets() const {
     return this->_tickets;
 }
 
-std::vector<Ticket> &AbstractTicketBoard::getTickets() {
+std::vector<Ticket *> &AbstractTicketBoard::getTickets() {
     return this->_tickets;
 }
 
@@ -75,15 +75,15 @@ int AbstractTicketBoard::getSocket() const {
 
 void AbstractTicketBoard::addCommand(const Command &command) {
     for (std::size_t i = 0; i < command.getPizzas().size(); i++) {
-        this->addTicket(Ticket(command, i));
+        this->addTicket(new Ticket(command, i));
     }
 }
 
 void AbstractTicketBoard::removeAllTicketOfCommand(const Command &command) {
     _mutex.lock();
     this->_tickets.erase(std::remove_if(this->_tickets.begin(), this->_tickets.end(),
-        [&command](const Ticket &ticket) {
-            return ticket.getCommandUuid() == command.getUuid();
+        [&command](const Ticket *ticket) {
+            return ticket->getCommandUuid() == command.getUuid();
         }), this->_tickets.end());
     _mutex.unlock();
 }
@@ -91,31 +91,31 @@ void AbstractTicketBoard::removeAllTicketOfCommand(const Command &command) {
 void AbstractTicketBoard::markTicketAsDone(const UUID &ticketUUID) {
     _mutex.lock();
     auto ticket = std::find_if(this->_tickets.begin(), this->_tickets.end(),
-        [ticketUUID](const Ticket &ticket) {
-            return ticket.getUuid() == ticketUUID;
+        [ticketUUID](const Ticket *ticket) {
+            return ticket->getUuid() == ticketUUID;
         });
     if (ticket == this->_tickets.end()) {
         _mutex.unlock();
         throw AbstractTicketBoard::TicketBoardTicketNotFoundException(
                 ticketUUID);
     }
-    ticket->setDone(true);
-    ticket->setBeingProcessed(false);
+    (*ticket)->setDone(true);
+    (*ticket)->setBeingProcessed(false);
     _mutex.unlock();
 }
 
 void AbstractTicketBoard::markTicketAsBeingProcessed(const UUID &ticketUUID) {
     _mutex.lock();
     auto ticket = std::find_if(this->_tickets.begin(), this->_tickets.end(),
-        [ticketUUID](const Ticket &ticket) {
-            return ticket.getUuid() == ticketUUID;
+        [ticketUUID](const Ticket *ticket) {
+            return ticket->getUuid() == ticketUUID;
         });
     if (ticket == this->_tickets.end()) {
         _mutex.unlock();
         throw AbstractTicketBoard::TicketBoardTicketNotFoundException(
                 ticketUUID);
     }
-    ticket->setBeingProcessed(true);
+    (*ticket)->setBeingProcessed(true);
     _mutex.unlock();
 }
 
@@ -126,23 +126,23 @@ void AbstractTicketBoard::stop() {
 Ticket *AbstractTicketBoard::getTicket(const UUID &ticketUUID) {
     _mutex.lock();
     auto ticket = std::find_if(this->_tickets.begin(), this->_tickets.end(),
-        [ticketUUID](const Ticket &ticket) {
-            return ticket.getUuid() == ticketUUID;
+        [ticketUUID](const Ticket *ticket) {
+            return ticket->getUuid() == ticketUUID;
     });
     if (ticket == this->_tickets.end()) {
         _mutex.unlock();
         return nullptr;
     }
     _mutex.unlock();
-    return &(*ticket);
+    return *ticket.base();
 }
 
 std::vector<Ticket *> AbstractTicketBoard::getTickets(const UUID &commandUUID) {
     _mutex.lock();
     std::vector<Ticket *> tickets;
-    for (auto &ticket : this->_tickets) {
-        if (ticket.getCommandUuid() == commandUUID) {
-            tickets.push_back(&ticket);
+    for (auto ticket : this->_tickets) {
+        if (ticket->getCommandUuid() == commandUUID) {
+            tickets.push_back(ticket);
         }
     }
     _mutex.unlock();

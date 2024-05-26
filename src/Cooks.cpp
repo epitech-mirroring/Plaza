@@ -16,12 +16,12 @@ Cooks::Cooks()
     _thread = Thread();
 }
 
-void Cooks::cook(Ticket ticket, float cookingTime)
+void Cooks::cook(Ticket *ticket, float cookingTime)
 {
     this->_isCooking = true;
-    std::cout << "Cooking an " << ticket.getPizza().getSize() << " " << ticket.getPizza().getType() << std::endl;
+    std::cout << "Cooking an " << ticket->getPizza().getSize() << " " << ticket->getPizza().getType() << std::endl;
     Timer::wait(cookingTime, SECONDS);
-    std::cout << ticket.getUuid() << " (" << ticket.getPizza() << ") has been cook with love" << std::endl;
+    std::cout << ticket->getUuid() << " (" << ticket->getPizza() << ") has been cook with love" << std::endl;
     this->_isCooking = false;
 }
 

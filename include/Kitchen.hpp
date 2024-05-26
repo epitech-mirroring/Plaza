@@ -29,7 +29,7 @@ public:
     Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, float cookTimeMultiplier);
     ~Kitchen() = default;
     void refill();
-    bool addTicket(Ticket &ticket);
+    bool addTicket(Ticket *ticket);
     void loop();
     void updateTickets();
     bool canCook(Pizza::Type pizzaType);

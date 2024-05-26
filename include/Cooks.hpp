@@ -18,7 +18,7 @@ protected:
 public:
     Cooks();
     ~Cooks() = default;
-    void cook(Ticket ticket, float cookingTime);
+    void cook(Ticket *ticket, float cookingTime);
     [[nodiscard]] bool getIsCooking() const;
     [[nodiscard]] Thread &getThread();
 };

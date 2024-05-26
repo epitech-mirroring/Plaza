@@ -48,7 +48,7 @@ public:
 
     static const std::unordered_map<MessageType, TicketEventType> RELATION_MAP;
 protected:
-    std::vector<Ticket> _tickets;
+    std::vector<Ticket *> _tickets;
     std::unordered_map<TicketEventType, std::vector<TicketCallback>> _callbacks;
     bool _isRunning = false;
     Role _role;
@@ -63,15 +63,15 @@ public:
     virtual void stop();
 
     void addListener(const TicketCallback &callback, TicketEventType type);
-    void addTicket(const Ticket &ticket);
+    void addTicket(Ticket *ticket);
     void removeTicket(const UUID &ticketUUID);
     Ticket *getTicket(const UUID &ticketUUID);
     std::vector<Ticket *> getTickets(const UUID &commandUUID);
 
     [[nodiscard]] int getSocket() const;
 
-    [[nodiscard]] const std::vector<Ticket> &getTickets() const;
-    [[nodiscard]] std::vector<Ticket> &getTickets();
+    [[nodiscard]] const std::vector<Ticket *> &getTickets() const;
+    [[nodiscard]] std::vector<Ticket *> &getTickets();
 
     virtual void addCommand(const Command &command);
     virtual void removeAllTicketOfCommand(const Command &command);

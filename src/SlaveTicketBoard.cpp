@@ -41,11 +41,11 @@ void SlaveTicketBoard::_handleMaster(const std::string &message) {
                 UUID ticket_uuid = UUID();
                 ticket_uuid.fromString(match[2]);
                 _mutex.lock();
-                const Ticket *ticket = std::find_if(_tickets.begin(),
+                const Ticket *ticket = *std::find_if(_tickets.begin(),
                                                     _tickets.end(),
                                                     [ticket_uuid](
-                                                            const Ticket &ticket) {
-                                                        return ticket.getUuid() ==
+                                                            const Ticket *ticket) {
+                                                        return ticket->getUuid() ==
                                                                ticket_uuid;
                                                     }).base();
                 _mutex.unlock();
@@ -107,8 +107,8 @@ void SlaveTicketBoard::run()
 
 void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
     _mutex.lock();
-    Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket &ticket) {
-        return ticket.getUuid() == uuid;
+    Ticket *ticket = *std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket *ticket) {
+        return ticket->getUuid() == uuid;
     }).base();
 
     if (ticket == nullptr) {
@@ -125,8 +125,8 @@ void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
 
 void SlaveTicketBoard::markTicketAsBeingProcessed(const UUID &uuid) {
     _mutex.lock();
-    Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket &ticket) {
-        return ticket.getUuid() == uuid;
+    Ticket *ticket = *std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket *ticket) {
+        return ticket->getUuid() == uuid;
     }).base();
 
     if (ticket == nullptr) {
