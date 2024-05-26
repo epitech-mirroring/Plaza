@@ -68,9 +68,7 @@ void Reception::run()
             std::cerr << "Ticket not found in the awaiting commands" << std::endl;
             return;
         } else {
-            std::cout << "Command " << _awaitingCommands[i].getUuid() << " has " << _awaitingCommands[i]._donePizzas << " pizzas done" << std::endl;
             _awaitingCommands[i]._donePizzas++;
-            std::cout << "Command " << _awaitingCommands[i].getUuid() << " has " << _awaitingCommands[i]._donePizzas << " pizzas done" << std::endl;
         }
         for (auto &command : _awaitingCommands) {
             if (command._donePizzas == command.getPizzas().size()) {
