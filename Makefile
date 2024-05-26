@@ -34,7 +34,7 @@ NAME 			= 	plazza
 CXX				= 	g++
 CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include -L./libs
 MACOS_FLAGS		=
-LINUX_FLAGS		=	-luuid
+LINUX_FLAGS		=	-luuid -lfmt
 CXXFLAGS		+=	$(shell [ `uname -s` = "Darwin" ] && echo $(MACOS_FLAGS))
 CXXFLAGS		+=	$(shell [ `uname -s` = "Linux" ] && echo $(LINUX_FLAGS))
 CXX_OBJS		= 	$(CXX_SOURCES:.cpp=.o)

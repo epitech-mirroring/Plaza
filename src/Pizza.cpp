@@ -6,6 +6,7 @@
 ** You can even have multiple lines if you want !
 */
 
+#include <algorithm>
 #include "Pizza.hpp"
 
 Pizza::Pizza(Pizza::Type type, Pizza::Size size) {
