@@ -86,14 +86,12 @@ void Kitchen::updateTickets()
 {
     if (_ticketQueue.empty())
         return;
-    // std::cout << _ticketQueue.size() << " tickets in the queue" << std::endl;
-    for (auto &ticket : _ticketQueue) {
+    for (auto& ticket : _ticketQueue) {
         if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
             continue;
         for (auto cooker : _cookers) {
             if (cooker.cooker->getIsCooking())
                 continue;
-            ticket.setBeingProcessed(true);
             auto *package = new CookPackage(&ticket, 0, cooker.cooker, &_doneTickets);
             if (package->ticket->getPizza().getType() == Pizza::Regina) {
                 package->timeToCook = 2.f;
@@ -102,6 +100,7 @@ void Kitchen::updateTickets()
             }
             package->timeToCook *= _cookTimeMultiplier;
             ticket.setBeingProcessed(true);
+            std::cout << ticket.getUuid() << std::endl;
             cooker.thread.start(Cooks::cook, package);
             removeIngredients(ticket.getPizza().getType());
             _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -109,14 +108,18 @@ void Kitchen::updateTickets()
         }
     }
     this->_ticketQueueMutex.lock();
-    for (auto &ticket : _ticketQueue) {
-        if (ticket.isDone()) {
-            auto it = findTicket(ticket);
-            _doneTickets.push_back(ticket);
-            _slaveTicketBoard.markTicketAsDone(ticket.getUuid());
-            _ticketQueue.erase(it);
+    for (auto &ticketDone : _doneTickets) {
+        _slaveTicketBoard.markTicketAsDone(ticketDone.getUuid());
+        for (auto &ticket : _ticketQueue) {
+            if (ticket == ticketDone) {
+                ticket.setDone(true);
+                ticket.setBeingProcessed(false);
+                auto it = findTicket(ticket);
+                _ticketQueue.erase(it);
+            }
         }
     }
+    _doneTickets.clear();
     this->_ticketQueueMutex.unlock();
     return;
 }

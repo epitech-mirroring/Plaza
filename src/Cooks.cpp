@@ -18,14 +18,19 @@ Cooks::Cooks()
 void *Cooks::cook(void *param)
 {
     auto *cookPackage = (struct CookPackage *)param;
+    Ticket ticket = Ticket(cookPackage->ticket->getUuid(), cookPackage->ticket->getCommandUuid(), cookPackage->ticket->getPizza());
+    ticket.setBeingProcessed(true);
+    ticket.setDone(false);
+    std::cout << ticket.getUuid() << std::endl << std::endl;
     cookPackage->cooker->_isCooking = true;
     std::cout << "Cooking an " << cookPackage->ticket->getPizza().getSize() << " " << cookPackage->ticket->getPizza().getType() << std::endl;
     Timer::wait(cookPackage->timeToCook, SECONDS);
     cookPackage->cooker->_isCooking = false;
-    std::cout << cookPackage->ticket->getPizza().getType() << " " << cookPackage->ticket->getPizza().getSize() << " has been cook with love" << std::endl;
+    std::cout << ticket.getUuid() << " has been cook with love" << std::endl;
 
     cookPackage->ticket->setBeingProcessed(false);
     cookPackage->ticket->setDone(true);
+    cookPackage->_doneCommandsList->push_back(ticket);
     delete cookPackage;
     return nullptr;
 }
