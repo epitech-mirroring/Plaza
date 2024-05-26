@@ -58,6 +58,26 @@ void Reception::run()
     _isRunning = true;
     _ticketBoard.addListener([this](const Ticket *ticket, const std::string &message) {
         std::cout << "Ticket " << ticket->getUuid() << " is now done" << std::endl;
+        std::size_t i = 0;
+        for (; i < _awaitingCommands.size(); i++) {
+            if (_awaitingCommands[i].getUuid() == ticket->getCommandUuid()) {
+                break;
+            }
+        }
+        if (i == _awaitingCommands.size()) {
+            std::cerr << "Ticket not found in the awaiting commands" << std::endl;
+            return;
+        } else {
+            std::cout << "Command " << _awaitingCommands[i].getUuid() << " has " << _awaitingCommands[i]._donePizzas << " pizzas done" << std::endl;
+            _awaitingCommands[i]._donePizzas++;
+            std::cout << "Command " << _awaitingCommands[i].getUuid() << " has " << _awaitingCommands[i]._donePizzas << " pizzas done" << std::endl;
+        }
+        for (auto &command : _awaitingCommands) {
+            if (command._donePizzas == command.getPizzas().size()) {
+                std::cout << "Command " << command.getUuid() << " is done" << std::endl;
+                _awaitingCommands.erase(std::remove(_awaitingCommands.begin(), _awaitingCommands.end(), command), _awaitingCommands.end());
+            }
+        }
     }, AbstractTicketBoard::TicketEventType::MARKED_AS_DONE);
     _ticketBoard.run();
     fd_set readfds;

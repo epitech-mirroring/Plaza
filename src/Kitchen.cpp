@@ -86,6 +86,7 @@ void Kitchen::updateTickets()
 {
     if (_ticketQueue.empty())
         return;
+    // std::cout << _ticketQueue.size() << " tickets in the queue" << std::endl;
     for (auto &ticket : _ticketQueue) {
         if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
             continue;
@@ -111,6 +112,7 @@ void Kitchen::updateTickets()
     for (auto &ticket : _ticketQueue) {
         if (ticket.isDone()) {
             auto it = findTicket(ticket);
+            _doneTickets.push_back(ticket);
             _slaveTicketBoard.markTicketAsDone(ticket.getUuid());
             _ticketQueue.erase(it);
         }

@@ -33,7 +33,7 @@ LIBS			=
 # Compiler and linker settings
 NAME 			= 	plazza
 CXX				= 	g++
-CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include -L./libs
+CXXFLAGS		= 	-std=c++20 -I./include -L./libs
 MACOS_FLAGS		=
 LINUX_FLAGS		=	-luuid
 CXXFLAGS		+=	$(shell [ `uname -s` = "Darwin" ] && echo $(MACOS_FLAGS))

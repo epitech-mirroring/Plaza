@@ -11,11 +11,13 @@
 
 Command::Command() {
     this->_uuid = UUID();
+    _donePizzas = 0;
 }
 
 Command::Command(const Command &other) {
     this->_uuid = other._uuid;
     this->_pizzas = other._pizzas;
+    this->_donePizzas = other._donePizzas;
 }
 
 const UUID &Command::getUuid() const {

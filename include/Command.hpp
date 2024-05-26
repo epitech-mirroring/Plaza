@@ -29,6 +29,7 @@ public:
     bool operator==(const Command &other) const;
     bool operator!=(const Command &other) const;
     Command &operator=(const Command &other);
+    std::size_t _donePizzas;
 
     friend std::ostream &operator<<(std::ostream &os, const Command &command);
 };
