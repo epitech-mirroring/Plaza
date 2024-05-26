@@ -74,6 +74,7 @@ void Kitchen::loop()
 void Kitchen::updateTickets()
 {
     for (auto& ticket : _slaveTicketBoard.getTickets()) {
+        usleep(10);
         if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
             continue;
         for (auto cooker : _cookers) {
