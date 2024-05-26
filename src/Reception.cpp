@@ -18,9 +18,7 @@ Reception::Reception()
     _ticketBoard = MasterTicketBoard();
 }
 
-Reception::~Reception()
-{
-}
+Reception::~Reception() = default;
 
 void Reception::parseCommand(const std::string &command) {
     // Split the command into tokens using ';' as delimiter
@@ -58,6 +56,9 @@ void Reception::parseCommand(const std::string &command) {
 void Reception::run()
 {
     _isRunning = true;
+    _ticketBoard.addListener([this](const Ticket *ticket, const std::string &message) {
+        std::cout << "Ticket " << ticket->getUuid() << " is now done" << std::endl;
+    }, AbstractTicketBoard::TicketEventType::MARKED_AS_DONE);
     _ticketBoard.run();
     fd_set readfds;
     struct timeval tv = {0, 0};

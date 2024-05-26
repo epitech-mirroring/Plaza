@@ -16,13 +16,12 @@
 #define TICKET_MARKED_AS_DONE_MESSAGE "[%s-%s] Ticket marked as done\n"
 
 #define UUID_REGEX "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-#define NEW_TICKET_REGEX "\\[(" UUID_REGEX ")-(" UUID_REGEX ")\\] New ticket, type: (Regina|Margarita|Americana|Fantasia), size: (S|M|L|XL)\n"
-#define TICKET_REQUEST_ASSIGNMENT_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Kitchen " UUID_REGEX " requested ticket assignment\n"
-#define TICKET_ASSIGNED_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Ticket assigned to kitchen " UUID_REGEX "\n"
-#define TICKET_MARKED_AS_DONE_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Ticket marked as done\n"
+#define NEW_TICKET_REGEX "\\[(" UUID_REGEX ")-(" UUID_REGEX ")\\] New ticket, type: (Regina|Margarita|Americana|Fantasia), size: (S|M|L|XL)"
+#define TICKET_REQUEST_ASSIGNMENT_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Kitchen " UUID_REGEX " requested ticket assignment"
+#define TICKET_ASSIGNED_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Ticket assigned to kitchen " UUID_REGEX
+#define TICKET_MARKED_AS_DONE_REGEX "\\[(" UUID_REGEX ")-(" UUID_REGEX ")\\] Ticket marked as done"
 
-
-typedef std::function<void(const Ticket &ticket, const std::string& message)> TicketCallback;
+typedef std::function<void(const Ticket *ticket, const std::string& message)> TicketCallback;
 
 enum MessageType {
     NEW_TICKET,

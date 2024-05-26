@@ -8,17 +8,17 @@
 
 #include "Timer.hpp"
 
-void Timer::wait(std::size_t timeToWait, TimerType type)
+void Timer::wait(float timeToWait, TimerType type)
 {
     switch (type) {
         case MICROSECONDS:
-            usleep(timeToWait);
+            usleep((long) timeToWait);
             break;
         case MILLISECONDS:
-            usleep(timeToWait * 1000);
+            usleep((long) (timeToWait * 1000.0));
             break;
         case SECONDS:
-            usleep(timeToWait * 1000000);
+            usleep((long) (timeToWait * 1000000.0));
             break;
     }
 }

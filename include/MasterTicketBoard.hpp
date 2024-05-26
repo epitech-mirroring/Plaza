@@ -26,7 +26,7 @@ protected:
 
     void _acceptSlaves();
     void _handleSlave(int slave);
-    void _handleMessage(const std::string &message);
+    void _handleMessage(const std::string &message, int sender);
 public:
     MasterTicketBoard();
     ~MasterTicketBoard() override;

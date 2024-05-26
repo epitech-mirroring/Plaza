@@ -7,6 +7,7 @@
 */
 
 #include <regex>
+#include <sstream>
 #include "Format.hpp"
 #include "SlaveTicketBoard.hpp"
 
@@ -18,29 +19,39 @@ SlaveTicketBoard::~SlaveTicketBoard() = default;
 
 void SlaveTicketBoard::_handleMaster(const std::string &message) {
     // Try to parse the message
-    for (const auto &[type, pair] : MESSAGE_TYPE_TO_STRING) {
-        const auto &[f_string, regex] = pair;
-        // Create a regex object
-        std::regex reg(regex);
+    std::vector<std::string> splitMessage = Format::split(message, '\n');
+    for (const auto &msg : splitMessage) {
+        if (msg.empty()) {
+            continue;
+        }
+        for (const auto &[type, pair]: MESSAGE_TYPE_TO_STRING) {
+            const auto &[f_string, regex] = pair;
+            // Create a regex object
+            std::regex reg(regex);
 
-        // Check if the message match the regex
-        if (std::regex_match(message, reg)) {
-            // Groupe 1 is the command UUID
-            // Groupe 2 is the ticket UUID
-            // We ignore the rest for now
-            std::smatch match;
-            std::regex_search(message, match, reg);
-            UUID command_uuid = UUID();
-            command_uuid.fromString(match[1]);
-            UUID ticket_uuid = UUID();
-            ticket_uuid.fromString(match[2]);
-            const Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [ticket_uuid](const Ticket &ticket) {
-                return ticket.getUuid() == ticket_uuid;
-            }).base();
+            // Check if the message match the regex
+            if (std::regex_match(msg, reg)) {
+                // Groupe 1 is the command UUID
+                // Groupe 2 is the ticket UUID
+                // We ignore the rest for now
+                std::smatch match;
+                std::regex_search(msg, match, reg);
+                UUID command_uuid = UUID();
+                command_uuid.fromString(match[1]);
+                UUID ticket_uuid = UUID();
+                ticket_uuid.fromString(match[2]);
+                const Ticket *ticket = std::find_if(_tickets.begin(),
+                                                    _tickets.end(),
+                                                    [ticket_uuid](
+                                                            const Ticket &ticket) {
+                                                        return ticket.getUuid() ==
+                                                               ticket_uuid;
+                                                    }).base();
 
-            TicketEventType event_type = RELATION_MAP.at(type);
-            for (const auto &callback : _callbacks[event_type]) {
-                callback(*ticket, message);
+                TicketEventType event_type = RELATION_MAP.at(type);
+                for (const auto &callback: _callbacks[event_type]) {
+                    callback(ticket, msg);
+                }
             }
         }
     }

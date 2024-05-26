@@ -18,5 +18,5 @@ enum TimerType {
 
 class Timer {
     public:
-    static void wait(std::size_t timeToWait, TimerType type);
+    static void wait(float timeToWait, TimerType type);
 };

@@ -24,7 +24,7 @@ int main(int ac, char **av) {
 
     Thread t;
 
-    t.start([&nb_cooks, &time, &multiplier](void *param) -> void * {
+    t.start([nb_cooks, time, multiplier](void *param) -> void * {
         usleep(1000);
         Kitchen kitchen(static_cast<std::size_t>(nb_cooks),
                         std::chrono::milliseconds(time), multiplier);

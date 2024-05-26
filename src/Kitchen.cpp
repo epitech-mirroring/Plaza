@@ -46,6 +46,7 @@ bool Kitchen::addTicket(Ticket &ticket)
         return false;
     std::cout << "New ticket " << ticket.getUuid() << " added to the queue" << std::endl;
     _ticketQueue.push_back(ticket);
+    _slaveTicketBoard.addTicket(ticket);
     return true;
 }
 
@@ -57,7 +58,7 @@ std::size_t Kitchen::getTicketQueueSize()
 void Kitchen::loop()
 {
     _slaveTicketBoard.run();
-    _slaveTicketBoard.addListener([this](const Ticket &ticket, const std::string &msg) {
+    _slaveTicketBoard.addListener([this](const Ticket *ticket, const std::string &msg) {
         std::regex reg(NEW_TICKET_REGEX);
         std::smatch match;
         if (std::regex_match(msg, match, reg)) {
@@ -107,7 +108,7 @@ void Kitchen::updateTickets()
     for (auto &ticket : _ticketQueue) {
         if (ticket.isDone()) {
             auto it = findTicket(ticket);
-            _slaveTicketBoard.removeTicket(ticket.getUuid());
+            _slaveTicketBoard.markTicketAsDone(ticket.getUuid());
             _ticketQueue.erase(it);
         }
     }

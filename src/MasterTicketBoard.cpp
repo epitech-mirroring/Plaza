@@ -37,42 +37,58 @@ void MasterTicketBoard::_handleSlave(int slave) {
         close(slave);
     } else {
         std::string message(buffer, size);
-        _handleMessage(message);
+        _handleMessage(message, slave);
     }
 }
 
-void MasterTicketBoard::_handleMessage(const std::string &message) {
+void MasterTicketBoard::_handleMessage(const std::string &msg, int sender) {
     // Handle a message received from a slave
     // The message should be a command to send to the slaves
     // The command should be sent to all slaves
-    for (auto &[slave, queue] : _slaves) {
-        queue.push(message);
-    }
 
-    // Try to parse the message
-    for (const auto &[type, pair] : MESSAGE_TYPE_TO_STRING) {
-        const auto &[f_string, regex] = pair;
-        // Create a regex object
-        std::regex reg(regex);
+    std::vector<std::string> split = Format::split(msg, '\n');
 
-        // Check if the message match the regex
-        if (std::regex_match(message, reg)) {
-            // Groupe 1 is the command UUID
-            // Groupe 2 is the ticket UUID
-            // We ignore the rest for now
-            std::smatch match;
-            std::regex_search(message, match, reg);
-            UUID command_uuid = UUID();
-            command_uuid.fromString(match[1]);
-            UUID ticket_uuid = UUID();
-            ticket_uuid.fromString(match[2]);
-            const Ticket *ticket = &std::find_if(_tickets.begin(), _tickets.end(), [ticket_uuid](const Ticket &ticket) {
-                return ticket.getUuid() == ticket_uuid;
-            })[0];
+    for (const auto &message : split) {
+        if (message.empty()) {
+            continue;
+        }
+        for (auto &[slave, queue]: _slaves) {
+            if (slave != sender) {
+                queue.push(message);
+            }
+        }
+        // Try to parse the message
+        for (const auto &[type, pair]: MESSAGE_TYPE_TO_STRING) {
+            const auto &[f_string, regex] = pair;
+            // Create a regex object
+            try {
+                std::regex reg(regex, std::regex_constants::ECMAScript);
+                // Check if the message match the regex
+                if (std::regex_match(message, reg)) {
+                    // Groupe 1 is the command UUID
+                    // Groupe 2 is the ticket UUID
+                    // We ignore the rest for now
+                    std::smatch match;
+                    std::regex_search(message, match, reg);
+                    UUID command_uuid = UUID();
+                    command_uuid.fromString(match[1]);
+                    UUID ticket_uuid = UUID();
+                    ticket_uuid.fromString(match[2]);
+                    const Ticket *ticket = std::find_if(_tickets.begin(),
+                                                        _tickets.end(),
+                                                        [ticket_uuid](
+                                                                const Ticket &ticket) {
+                                                            return ticket.getUuid() ==
+                                                                   ticket_uuid;
+                                                        }).base();
 
-            TicketEventType event_type = RELATION_MAP.at(type);
-            for (const auto &callback : _callbacks[event_type]) {
-                callback(*ticket, message);
+                    TicketEventType event_type = RELATION_MAP.at(type);
+                    for (const auto &callback: _callbacks[event_type]) {
+                        callback(ticket, message);
+                    }
+                }
+            } catch (std::regex_error &e) {
+                std::cerr << "Regex error: " << e.what() << std::endl;
             }
         }
     }

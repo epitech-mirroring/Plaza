@@ -26,3 +26,19 @@ std::string Format::formatString(std::string str, ...)
     delete[] buffer;
     return ret;
 }
+
+std::vector<std::string> Format::split(const std::string &str, char delim)
+{
+    std::vector<std::string> elems;
+    std::string elem;
+    for (char c : str) {
+        if (c == delim) {
+            elems.push_back(elem);
+            elem.clear();
+        } else {
+            elem += c;
+        }
+    }
+    elems.push_back(elem);
+    return elems;
+}
