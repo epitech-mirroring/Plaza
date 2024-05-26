@@ -35,5 +35,7 @@ public:
 
     void addCommand(const Command &command) override;
 
+    void resendNotAskedTicket();
+
     Thread *operator->();
 };

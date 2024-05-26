@@ -174,6 +174,20 @@ void MasterTicketBoard::addCommand(const Command &command) {
     }
 }
 
+void MasterTicketBoard::resendNotAskedTicket() {
+    // Resend all the ticket that have not been asked to the slaves
+    _mutex.lock();
+    for (const auto &ticket : _tickets) {
+        if (!ticket.hasBeenAsked()) {
+            std::string formatedMessage = Format::formatString(NEW_TICKET_MESSAGE, ticket.getCommandUuid().toString().c_str(), ticket.getUuid().toString().c_str(), Pizza::typeToString(ticket.getPizza().getType()).c_str(), Pizza::sizeToString(ticket.getPizza().getSize()).c_str());
+            for (auto &[slave, queue] : _slaves) {
+                queue.push(formatedMessage);
+            }
+        }
+    }
+    _mutex.unlock();
+}
+
 Thread *MasterTicketBoard::operator->() {
     return &_thread;
 }

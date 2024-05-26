@@ -17,6 +17,7 @@ protected:
     std::size_t _pizzaIndex; // Index of the pizza in the command
     bool _isDone;
     bool _isBeingProcessed;
+    bool _hasBeenAsked;
 
 public:
     Ticket(const Command &command, std::size_t pizzaIndex);
@@ -35,6 +36,8 @@ public:
     void setDone(bool isDone);
     [[nodiscard]] bool isBeingProcessed() const;
     void setBeingProcessed(bool isBeingProcessed);
+    [[nodiscard]] bool hasBeenAsked() const;
+    void setHasBeenAsked(bool hasBeenAsked);
 
     Ticket &operator=(const Ticket &other);
     friend std::ostream &operator<<(std::ostream &os, const Ticket &ticket);

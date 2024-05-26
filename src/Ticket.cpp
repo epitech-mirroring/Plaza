@@ -8,7 +8,7 @@
 
 #include "Ticket.hpp"
 
-Ticket::Ticket(const Command& command, std::size_t pizzaIndex): _uuid(UUID()), _commandUuid(command.getUuid()), _pizza(command.getPizzas()[pizzaIndex]), _pizzaIndex(pizzaIndex), _isDone(false), _isBeingProcessed(false)
+Ticket::Ticket(const Command& command, std::size_t pizzaIndex): _uuid(UUID()), _commandUuid(command.getUuid()), _pizza(command.getPizzas()[pizzaIndex]), _pizzaIndex(pizzaIndex), _isDone(false), _isBeingProcessed(false), _hasBeenAsked(false)
 {
 }
 
@@ -19,6 +19,7 @@ Ticket::Ticket(const UUID& ticketUuid, const UUID& commandUuid, const Pizza& piz
     this->_pizzaIndex = 0;
     this->_isDone = false;
     this->_isBeingProcessed = false;
+    this->_hasBeenAsked = false;
 }
 
 Ticket::Ticket(const Ticket& other): _pizza(other._pizza) {
@@ -28,6 +29,7 @@ Ticket::Ticket(const Ticket& other): _pizza(other._pizza) {
     this->_pizzaIndex = other._pizzaIndex;
     this->_isDone = other._isDone;
     this->_isBeingProcessed = other._isBeingProcessed;
+    this->_hasBeenAsked = other._hasBeenAsked;
 }
 
 const UUID& Ticket::getUuid() const {
@@ -78,6 +80,14 @@ void Ticket::setBeingProcessed(bool isBeingProcessed) {
     this->_isBeingProcessed = isBeingProcessed;
 }
 
+bool Ticket::hasBeenAsked() const {
+    return this->_hasBeenAsked;
+}
+
+void Ticket::setHasBeenAsked(bool hasBeenAsked) {
+    this->_hasBeenAsked = hasBeenAsked;
+}
+
 Ticket& Ticket::operator=(const Ticket& other) {
     if (this == &other)
         return *this;
@@ -87,6 +97,7 @@ Ticket& Ticket::operator=(const Ticket& other) {
     this->_pizzaIndex = other._pizzaIndex;
     this->_isDone = other._isDone;
     this->_isBeingProcessed = other._isBeingProcessed;
+    this->_hasBeenAsked = other._hasBeenAsked;
     return *this;
 }
 
@@ -97,5 +108,5 @@ std::ostream& operator<<(std::ostream& os, const Ticket& ticket) {
 bool Ticket::operator==(const Ticket& other) const {
     if (this == &other)
         return true;
-    return this->_uuid == other._uuid && this->_commandUuid == other._commandUuid && this->_pizza == other._pizza && this->_pizzaIndex == other._pizzaIndex && this->_isDone == other._isDone && this->_isBeingProcessed == other._isBeingProcessed;
+    return this->_uuid == other._uuid && this->_commandUuid == other._commandUuid;
 }

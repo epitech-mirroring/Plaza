@@ -14,13 +14,18 @@ class Reception {
 protected:
     MasterTicketBoard _ticketBoard;
     std::vector<Command> _awaitingCommands;
+    std::vector<Thread> _threads;
     bool _isRunning;
 
+    float _cookingTimeMultiplier;
+    int _cooksPerKitchen;
+    int _restockTime;
 public:
-    Reception();
+    Reception(float cookingTimeMultiplier, int cooksPerKitchen, int restockTime);
     ~Reception();
 
     void run();
 
     void parseCommand(const std::string &command);
+    void createKitchen();
 };

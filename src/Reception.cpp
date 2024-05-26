@@ -8,11 +8,17 @@
 
 #include <iostream>
 #include <regex>
+#include <algorithm>
+#include <chrono>
 #include <unistd.h>
 #include "Reception.hpp"
+#include "Kitchen.hpp"
 
-Reception::Reception()
+Reception::Reception(float cookingTimeMultiplier, int cooksPerKitchen, int restockTime)
 {
+    _cookingTimeMultiplier = cookingTimeMultiplier;
+    _cooksPerKitchen = cooksPerKitchen;
+    _restockTime = restockTime;
     _isRunning = false;
     _awaitingCommands = std::vector<Command>();
     _ticketBoard = MasterTicketBoard();
@@ -51,6 +57,24 @@ void Reception::parseCommand(const std::string &command) {
     _ticketBoard.addCommand(newCommand);
     std::cout << "New command added to the queue" << std::endl;
     std::cout << newCommand << std::endl;
+    Thread thread;
+    this->_threads.push_back(thread);
+    thread.start([this, &newCommand](void *_) {
+        usleep(1000000); // 1 second
+        std::vector<Ticket *> tickets = _ticketBoard.getTickets(newCommand.getUuid());
+        int count = 0;
+        for (auto ticket : tickets) {
+            if (!ticket->hasBeenAsked() && !ticket->isDone()) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            createKitchen();
+            usleep(500000); // .5 second
+            this->_ticketBoard.resendNotAskedTicket();
+        }
+        return nullptr;
+    }, nullptr);
 }
 
 void Reception::run()
@@ -108,4 +132,19 @@ void Reception::run()
     }
     _ticketBoard.stop();
     _ticketBoard->join();
+}
+
+void Reception::createKitchen() {
+    // Fork a new process
+    pid_t pid = fork();
+    if (pid == -1) {
+        std::cerr << "Failed to fork a new process" << std::endl;
+        return;
+    }
+    if (pid == 0) {
+        // Child process
+        Kitchen kitchen(_cooksPerKitchen, std::chrono::milliseconds(_restockTime), _cookingTimeMultiplier);
+        kitchen.loop();
+        exit(0);
+    }
 }

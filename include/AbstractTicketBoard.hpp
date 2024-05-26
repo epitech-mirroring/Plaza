@@ -65,6 +65,9 @@ public:
     void addListener(const TicketCallback &callback, TicketEventType type);
     void addTicket(const Ticket &ticket);
     void removeTicket(const UUID &ticketUUID);
+    Ticket *getTicket(const UUID &ticketUUID);
+    std::vector<Ticket *> getTickets(const UUID &commandUUID);
+
     [[nodiscard]] int getSocket() const;
 
     [[nodiscard]] const std::vector<Ticket> &getTickets() const;

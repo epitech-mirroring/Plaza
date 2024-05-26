@@ -123,6 +123,32 @@ void AbstractTicketBoard::stop() {
     this->_isRunning = false;
 }
 
+Ticket *AbstractTicketBoard::getTicket(const UUID &ticketUUID) {
+    _mutex.lock();
+    auto ticket = std::find_if(this->_tickets.begin(), this->_tickets.end(),
+        [ticketUUID](const Ticket &ticket) {
+            return ticket.getUuid() == ticketUUID;
+    });
+    if (ticket == this->_tickets.end()) {
+        _mutex.unlock();
+        return nullptr;
+    }
+    _mutex.unlock();
+    return &(*ticket);
+}
+
+std::vector<Ticket *> AbstractTicketBoard::getTickets(const UUID &commandUUID) {
+    _mutex.lock();
+    std::vector<Ticket *> tickets;
+    for (auto &ticket : this->_tickets) {
+        if (ticket.getCommandUuid() == commandUUID) {
+            tickets.push_back(&ticket);
+        }
+    }
+    _mutex.unlock();
+    return tickets;
+}
+
 AbstractTicketBoard::TicketBoardException::TicketBoardException(std::string message) : std::exception(), _message(std::move(message)) {
 }
 
