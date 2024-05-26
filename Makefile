@@ -24,6 +24,7 @@ CXX_SOURCES		= 	src/main.cpp										\
 					src/MasterTicketBoard.cpp							\
 					src/SlaveTicketBoard.cpp							\
 					src/Reception.cpp									\
+					src/Format.cpp										\
 
 CXX_TESTS		=
 
@@ -34,7 +35,7 @@ NAME 			= 	plazza
 CXX				= 	g++
 CXXFLAGS		= 	-W -Wall -Wextra -std=c++20 -I./include -L./libs
 MACOS_FLAGS		=
-LINUX_FLAGS		=	-luuid -lfmt
+LINUX_FLAGS		=	-luuid
 CXXFLAGS		+=	$(shell [ `uname -s` = "Darwin" ] && echo $(MACOS_FLAGS))
 CXXFLAGS		+=	$(shell [ `uname -s` = "Linux" ] && echo $(LINUX_FLAGS))
 CXX_OBJS		= 	$(CXX_SOURCES:.cpp=.o)

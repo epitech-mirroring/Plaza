@@ -9,7 +9,7 @@
 #include <regex>
 #include <iostream>
 #include <string>
-#include <format>
+#include "Format.hpp"
 #include "MasterTicketBoard.hpp"
 
 MasterTicketBoard::MasterTicketBoard(): AbstractTicketBoard(MASTER) {
@@ -151,7 +151,7 @@ void MasterTicketBoard::addCommand(const Command &command) {
     for (std::size_t i = 0; i < command.getPizzas().size(); i++) {
         Ticket ticket(command, i);
         this->_tickets.push_back(ticket);
-        std::string formatedMessage = std::format(NEW_TICKET_MESSAGE, command.getUuid().toString(), ticket.getUuid().toString(), Pizza::typeToString(ticket.getPizza().getType()), Pizza::sizeToString(ticket.getPizza().getSize()));
+        std::string formatedMessage = Format::formatString(NEW_TICKET_MESSAGE, command.getUuid().toString().c_str(), ticket.getUuid().toString().c_str(), Pizza::typeToString(ticket.getPizza().getType()).c_str(), Pizza::sizeToString(ticket.getPizza().getSize()).c_str());
         for (auto &[slave, queue] : _slaves) {
             queue.push(formatedMessage);
         }

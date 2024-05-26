@@ -10,10 +10,10 @@
 #include <functional>
 #include "Ticket.hpp"
 
-#define NEW_TICKET_MESSAGE "[{}-{}] New ticket, type: {}, size: {}\n"
+#define NEW_TICKET_MESSAGE "[%s-%s] New ticket, type: %s, size: %s\n"
 #define TICKET_REQUEST_ASSIGNMENT_MESSAGE "[{}-{}] Kitchen {} requested ticket assignment\n"
 #define TICKET_ASSIGNED_MESSAGE "[{}-{}] Ticket assigned to kitchen {}\n"
-#define TICKET_MARKED_AS_DONE_MESSAGE "[{}-{}] Ticket marked as done\n"
+#define TICKET_MARKED_AS_DONE_MESSAGE "[%s-%s] Ticket marked as done\n"
 
 #define UUID_REGEX "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 #define NEW_TICKET_REGEX "\\[(" UUID_REGEX ")-(" UUID_REGEX ")\\] New ticket, type: (Regina|Margarita|Americana|Fantasia), size: (S|M|L|XL)\n"

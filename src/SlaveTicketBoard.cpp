@@ -7,7 +7,7 @@
 */
 
 #include <regex>
-#include <format>
+#include "Format.hpp"
 #include "SlaveTicketBoard.hpp"
 
 SlaveTicketBoard::SlaveTicketBoard(): AbstractTicketBoard(Role::SLAVE) {
@@ -102,7 +102,7 @@ void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
         throw TicketBoardException("Failed to find ticket with UUID " + uuid.toString());
     }
 
-    std::string formatedMessage = std::format(TICKET_MARKED_AS_DONE_MESSAGE, ticket->getCommandUuid().toString(), ticket->getUuid().toString());
+    std::string formatedMessage = Format::formatString(TICKET_MARKED_AS_DONE_MESSAGE, ticket->getCommandUuid().toString().c_str(), ticket->getUuid().toString().c_str());
     _queue.push(formatedMessage);
 }
 
