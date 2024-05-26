@@ -32,6 +32,7 @@ protected:
     float _cookTimeMultiplier;
     std::map<Ingredient, std::size_t> _ingredients;
     SlaveTicketBoard _slaveTicketBoard;
+    Mutex _ticketQueueMutex;
 public:
     Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, float cookTimeMultiplier);
     ~Kitchen() = default;

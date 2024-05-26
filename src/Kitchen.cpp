@@ -44,9 +44,11 @@ bool Kitchen::addTicket(Ticket &ticket)
 {
     if (_ticketQueue.size() >= 2 * _nbCooksMax)
         return false;
+    this->_ticketQueueMutex.lock();
     std::cout << "New ticket " << ticket.getUuid() << " added to the queue" << std::endl;
     _ticketQueue.push_back(ticket);
     _slaveTicketBoard.addTicket(ticket);
+    this->_ticketQueueMutex.unlock();
     return true;
 }
 
@@ -105,6 +107,7 @@ void Kitchen::updateTickets()
             break;
         }
     }
+    this->_ticketQueueMutex.lock();
     for (auto &ticket : _ticketQueue) {
         if (ticket.isDone()) {
             auto it = findTicket(ticket);
@@ -112,6 +115,7 @@ void Kitchen::updateTickets()
             _ticketQueue.erase(it);
         }
     }
+    this->_ticketQueueMutex.unlock();
     return;
 }
 

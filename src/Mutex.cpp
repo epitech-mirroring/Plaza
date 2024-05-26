@@ -40,6 +40,8 @@ void Mutex::unlock()
 
 Mutex &Mutex::operator=(const Mutex &mutex)
 {
+    if (this == &mutex)
+        return *this;
     _mutex = mutex._mutex;
     return *this;
 }
