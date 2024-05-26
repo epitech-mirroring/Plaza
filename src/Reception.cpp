@@ -20,8 +20,9 @@ Reception::Reception(float cookingTimeMultiplier, int cooksPerKitchen, int resto
     _cooksPerKitchen = cooksPerKitchen;
     _restockTime = restockTime;
     _isRunning = false;
-    _awaitingCommands = std::vector<Command>();
+    _awaitingCommands = std::vector<Command *>();
     _ticketBoard = MasterTicketBoard();
+    _mutex = Mutex();
 }
 
 Reception::~Reception() = default;
@@ -36,7 +37,7 @@ void Reception::parseCommand(const std::string &command) {
         tokens.push_back(*it);
     }
 
-    Command newCommand;
+    auto *newCommand = new Command();
     for (const auto &token : tokens) {
         std::regex pizzaRegex(" *(regina|fantasia|margarita|americana) (S|M|L|XL|XXL) x([0-9]+)");
         std::smatch match;
@@ -46,22 +47,24 @@ void Reception::parseCommand(const std::string &command) {
             Pizza::Size size = Pizza::parseSize(match[2]);
             int quantity = std::stoi(match[3]);
             for (int i = 0; i < quantity; i++) {
-                newCommand.addPizza(Pizza(type, size));
+                newCommand->addPizza(Pizza(type, size));
             }
         } else {
             std::cerr << "Invalid pizza: " << token << std::endl;
             std::cerr << "This pizza will be skipped in your final order" << std::endl;
         }
     }
+    _mutex.lock();
     _awaitingCommands.push_back(newCommand);
-    _ticketBoard.addCommand(newCommand);
+    _mutex.unlock();
+    _ticketBoard.addCommand(*newCommand);
     std::cout << "New command added to the queue" << std::endl;
-    std::cout << newCommand << std::endl;
+    std::cout << *newCommand << std::endl;
     Thread thread;
     this->_threads.push_back(thread);
-    thread.start([this, &newCommand](void *_) {
+    thread.start([this, newCommand](void *_) {
         usleep(1000000); // 1 second
-        std::vector<Ticket *> tickets = _ticketBoard.getTickets(newCommand.getUuid());
+        std::vector<Ticket *> tickets = _ticketBoard.getTickets(newCommand->getUuid());
         int count = 0;
         for (auto ticket : tickets) {
             if (!ticket->hasBeenAsked() && !ticket->isDone()) {
@@ -83,23 +86,26 @@ void Reception::run()
     _ticketBoard.addListener([this](const Ticket *ticket, const std::string &message) {
         std::cout << "Ticket " << ticket->getUuid() << " is now done" << std::endl;
         std::size_t i = 0;
+        _mutex.lock();
         for (; i < _awaitingCommands.size(); i++) {
-            if (_awaitingCommands[i].getUuid() == ticket->getCommandUuid()) {
+            if (_awaitingCommands[i]->getUuid() == ticket->getCommandUuid()) {
                 break;
             }
         }
         if (i == _awaitingCommands.size()) {
             std::cerr << "Ticket not found in the awaiting commands" << std::endl;
+            _mutex.unlock();
             return;
         } else {
-            _awaitingCommands[i]._donePizzas++;
+            _awaitingCommands[i]->_donePizzas++;
         }
-        for (auto &command : _awaitingCommands) {
-            if (command._donePizzas == command.getPizzas().size()) {
-                std::cout << "Command " << command.getUuid() << " is done" << std::endl;
+        for (auto command : _awaitingCommands) {
+            if (command->_donePizzas == command->getPizzas().size()) {
+                std::cout << "Command " << command->getUuid() << " is done" << std::endl;
                 _awaitingCommands.erase(std::remove(_awaitingCommands.begin(), _awaitingCommands.end(), command), _awaitingCommands.end());
             }
         }
+        _mutex.unlock();
     }, AbstractTicketBoard::TicketEventType::MARKED_AS_DONE);
     _ticketBoard.run();
     fd_set readfds;

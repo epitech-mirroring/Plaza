@@ -13,9 +13,10 @@
 class Reception {
 protected:
     MasterTicketBoard _ticketBoard;
-    std::vector<Command> _awaitingCommands;
+    std::vector<Command *> _awaitingCommands;
     std::vector<Thread> _threads;
     bool _isRunning;
+    Mutex _mutex;
 
     float _cookingTimeMultiplier;
     int _cooksPerKitchen;
