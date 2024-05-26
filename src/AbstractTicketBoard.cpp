@@ -28,7 +28,11 @@ AbstractTicketBoard::AbstractTicketBoard(Role role) {
     this->_mutex = Mutex();
 }
 
-AbstractTicketBoard::~AbstractTicketBoard() = default;
+AbstractTicketBoard::~AbstractTicketBoard() {
+    for (auto ticket : this->_tickets) {
+        delete ticket;
+    }
+}
 
 void AbstractTicketBoard::addTicket(Ticket *ticket) {
     _mutex.lock();

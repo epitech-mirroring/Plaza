@@ -14,6 +14,7 @@
 
 MasterTicketBoard::MasterTicketBoard(): AbstractTicketBoard(MASTER) {
     this->_slaveToDelete = std::vector<int>();
+    this->_slaveToAccept = std::vector<int>();
 }
 
 MasterTicketBoard::~MasterTicketBoard() = default;
@@ -24,7 +25,7 @@ void MasterTicketBoard::_acceptSlaves() {
     if (slave_fd == -1) {
         throw TicketBoardException("Failed to accept a new slave");
     }
-    _slaves[slave_fd] = std::queue<std::string>();
+    this->_slaveToAccept.push_back(slave_fd);
 }
 
 void MasterTicketBoard::_handleSlave(int slave) {
@@ -145,9 +146,7 @@ void MasterTicketBoard::run() {
             for (auto &[slave_fd, queue] : _slaves) {
                 if (FD_ISSET(slave_fd, &readfds)) {
                     _handleSlave(slave_fd);
-                    continue;
-                }
-                if (FD_ISSET(slave_fd, &writefds)) {
+                } else if (FD_ISSET(slave_fd, &writefds)) {
                     if (!queue.empty()) {
                         std::string message = queue.front();
                         queue.pop();
@@ -161,6 +160,10 @@ void MasterTicketBoard::run() {
                 _slaves.erase(slave);
             }
             _slaveToDelete.clear();
+            for (int slave : _slaveToAccept) {
+                _slaves[slave] = std::queue<std::string>();
+            }
+            _slaveToAccept.clear();
         }
         return nullptr;
     }, nullptr);

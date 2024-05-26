@@ -24,6 +24,7 @@ protected:
     Thread _thread;
     std::unordered_map<int, std::queue<std::string>> _slaves;
     std::vector<int> _slaveToDelete;
+    std::vector<int> _slaveToAccept;
 
     void _acceptSlaves();
     void _handleSlave(int slave);
