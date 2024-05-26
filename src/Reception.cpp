@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <regex>
+#include <unistd.h>
 #include "Reception.hpp"
 
 Reception::Reception()
@@ -62,14 +63,23 @@ void Reception::run()
     struct timeval tv = {0, 0};
     while (_isRunning) {
         FD_ZERO(&readfds);
+#ifdef __APPLE__
         FD_SET(stdin->_file, &readfds);
         select(stdin->_file + 1, &readfds, nullptr, nullptr, &tv);
+#else
+        FD_SET(stdin->_fileno, &readfds);
+        select(stdin->_fileno + 1, &readfds, nullptr, nullptr, &tv);
+#endif
         // If ctrl+d is pressed we stop the reception
         if (std::cin.eof()) {
             _isRunning = false;
             continue;
         }
+#ifdef __APPLE__
         if (FD_ISSET(stdin->_file, &readfds)) {
+#else
+        if (FD_ISSET(stdin->_fileno, &readfds)) {
+#endif
             std::string command;
             std::getline(std::cin, command);
             if (command.empty())
