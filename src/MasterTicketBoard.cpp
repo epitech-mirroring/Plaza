@@ -7,6 +7,9 @@
 */
 
 #include <regex>
+#include <iostream>
+#include <string>
+#include <format>
 #include "MasterTicketBoard.hpp"
 
 MasterTicketBoard::MasterTicketBoard(): AbstractTicketBoard(MASTER) {
@@ -29,6 +32,7 @@ void MasterTicketBoard::_handleSlave(int slave) {
     char buffer[1024];
     std::size_t size = recv(slave, buffer, 1024, 0);
     if (size == 0) {
+        std::cerr << "Slave disconnected" << std::endl;
         _slaves.erase(slave);
         close(slave);
     } else {
@@ -139,4 +143,21 @@ void MasterTicketBoard::run() {
         }
         return nullptr;
     }, nullptr);
+}
+
+void MasterTicketBoard::addCommand(const Command &command) {
+    // Add the command to the list of commands
+    // The command should be sent to all slaves
+    for (std::size_t i = 0; i < command.getPizzas().size(); i++) {
+        Ticket ticket(command, i);
+        this->_tickets.push_back(ticket);
+        std::string formatedMessage = std::format(NEW_TICKET_MESSAGE, command.getUuid().toString(), ticket.getUuid().toString(), Pizza::typeToString(ticket.getPizza().getType()), Pizza::sizeToString(ticket.getPizza().getSize()));
+        for (auto &[slave, queue] : _slaves) {
+            queue.push(formatedMessage);
+        }
+    }
+}
+
+Thread *MasterTicketBoard::operator->() {
+    return &_thread;
 }

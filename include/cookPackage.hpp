@@ -12,7 +12,7 @@
 
 struct CookPackage {
     Ticket *ticket;
-    std::size_t timeToCook;
+    float timeToCook;
     Cooks *cooker;
     std::vector<Ticket> *_doneCommandsList;
     CookPackage(Ticket *ticket, std::size_t timeToCook, Cooks *cooker, std::vector<Ticket> *doneCommandsList) : ticket(ticket), timeToCook(timeToCook), cooker(cooker), _doneCommandsList(doneCommandsList) {}

@@ -34,8 +34,8 @@ public:
     Pizza(Type type, Size size);
     ~Pizza();
 
-    Type getType() const;
-    Size getSize() const;
+    [[nodiscard]] Type getType() const;
+    [[nodiscard]] Size getSize() const;
     void setType(Type type);
     void setSize(Size size);
 
@@ -45,4 +45,9 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const Pizza &pizza);
     friend std::ostream &operator<<(std::ostream &os, const Type &type);
     friend std::ostream &operator<<(std::ostream &os, const Size &size);
+
+    static Type parseType(const std::string &type);
+    static Size parseSize(const std::string &size);
+    static std::string typeToString(Type type);
+    static std::string sizeToString(Size size);
 };

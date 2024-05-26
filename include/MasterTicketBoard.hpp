@@ -32,4 +32,8 @@ public:
     ~MasterTicketBoard() override;
 
     void run() override;
+
+    void addCommand(const Command &command) override;
+
+    Thread *operator->();
 };

@@ -10,13 +10,13 @@
 #include <functional>
 #include "Ticket.hpp"
 
-#define NEW_TICKET_MESSAGE "[%s-%s] New ticket, type: %s, size: %s\n"
-#define TICKET_REQUEST_ASSIGNMENT_MESSAGE "[%s-%s] Kitchen %s requested ticket assignment\n"
-#define TICKET_ASSIGNED_MESSAGE "[%s-%s] Ticket assigned to kitchen %s\n"
-#define TICKET_MARKED_AS_DONE_MESSAGE "[%s-%s] Ticket marked as done\n"
+#define NEW_TICKET_MESSAGE "[{}-{}] New ticket, type: {}, size: {}\n"
+#define TICKET_REQUEST_ASSIGNMENT_MESSAGE "[{}-{}] Kitchen {} requested ticket assignment\n"
+#define TICKET_ASSIGNED_MESSAGE "[{}-{}] Ticket assigned to kitchen {}\n"
+#define TICKET_MARKED_AS_DONE_MESSAGE "[{}-{}] Ticket marked as done\n"
 
 #define UUID_REGEX "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-#define NEW_TICKET_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] New ticket, type: (Regina|Margarita|Americana|Fantasia), size: (S|M|L|XL)\n"
+#define NEW_TICKET_REGEX "\\[(" UUID_REGEX ")-(" UUID_REGEX ")\\] New ticket, type: (Regina|Margarita|Americana|Fantasia), size: (S|M|L|XL)\n"
 #define TICKET_REQUEST_ASSIGNMENT_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Kitchen " UUID_REGEX " requested ticket assignment\n"
 #define TICKET_ASSIGNED_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Ticket assigned to kitchen " UUID_REGEX "\n"
 #define TICKET_MARKED_AS_DONE_REGEX "\\[" UUID_REGEX "-" UUID_REGEX "\\] Ticket marked as done\n"
@@ -59,6 +59,7 @@ public:
     virtual ~AbstractTicketBoard();
 
     virtual void run() = 0;
+    virtual void stop();
 
     void addListener(const TicketCallback &callback, TicketEventType type);
     void addTicket(const Ticket &ticket);

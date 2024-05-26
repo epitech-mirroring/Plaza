@@ -11,6 +11,7 @@
 #include "SafeQueue.hpp"
 #include "Thread.hpp"
 #include "Recipe.hpp"
+#include "SlaveTicketBoard.hpp"
 #include <chrono>
 #include <map>
 
@@ -28,10 +29,11 @@ protected:
     std::chrono::milliseconds _refillTime;
     std::chrono::milliseconds _lastRefill;
     std::chrono::seconds _lastWork;
-    std::size_t _cookTimeMultiplier;
+    float _cookTimeMultiplier;
     std::map<Ingredient, std::size_t> _ingredients;
+    SlaveTicketBoard _slaveTicketBoard;
 public:
-    Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, std::size_t cookTimeMultiplier);
+    Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, float cookTimeMultiplier);
     ~Kitchen() = default;
     void refill();
     bool addTicket(Ticket &ticket);

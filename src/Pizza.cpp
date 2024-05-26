@@ -82,3 +82,65 @@ std::ostream &operator<<(std::ostream &os, const Pizza::Size &size) {
     }
     return os;
 }
+
+static std::string lowercase(const std::string &str) {
+    std::string lower = str;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    return lower;
+}
+
+Pizza::Type Pizza::parseType(const std::string &type) {
+    if (lowercase(type) == "regina")
+        return Pizza::Type::Regina;
+    if (lowercase(type) == "margarita")
+        return Pizza::Type::Margarita;
+    if (lowercase(type) == "americana")
+        return Pizza::Type::Americana;
+    if (lowercase(type) == "fantasia")
+        return Pizza::Type::Fantasia;
+    throw std::invalid_argument("Invalid pizza type");
+}
+
+Pizza::Size Pizza::parseSize(const std::string &size) {
+    if (lowercase(size) == "s")
+        return Pizza::Size::S;
+    if (lowercase(size) == "m")
+        return Pizza::Size::M;
+    if (lowercase(size) == "l")
+        return Pizza::Size::L;
+    if (lowercase(size) == "xl")
+        return Pizza::Size::XL;
+    if (lowercase(size) == "xxl")
+        return Pizza::Size::XXL;
+    throw std::invalid_argument("Invalid pizza size");
+}
+
+std::string Pizza::typeToString(Pizza::Type type) {
+    switch (type) {
+        case Pizza::Type::Regina:
+            return "Regina";
+        case Pizza::Type::Margarita:
+            return "Margarita";
+        case Pizza::Type::Americana:
+            return "Americana";
+        case Pizza::Type::Fantasia:
+            return "Fantasia";
+    }
+    return "";
+}
+
+std::string Pizza::sizeToString(Pizza::Size size) {
+    switch (size) {
+        case Pizza::Size::S:
+            return "S";
+        case Pizza::Size::M:
+            return "M";
+        case Pizza::Size::L:
+            return "L";
+        case Pizza::Size::XL:
+            return "XL";
+        case Pizza::Size::XXL:
+            return "XXL";
+    }
+    return "";
+}

@@ -23,6 +23,7 @@ CXX_SOURCES		= 	src/main.cpp										\
 					src/AbstractTicketBoard.cpp							\
 					src/MasterTicketBoard.cpp							\
 					src/SlaveTicketBoard.cpp							\
+					src/Reception.cpp									\
 
 CXX_TESTS		=
 

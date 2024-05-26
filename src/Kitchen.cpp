@@ -6,11 +6,12 @@
 ** You can even have multiple lines if you want !
 */
 
+#include <chrono>
+#include <regex>
 #include "Kitchen.hpp"
 #include "cookPackage.hpp"
-#include <chrono>
 
-Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, std::size_t cookTimeMultiplier)
+Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, float cookTimeMultiplier)
 {
     _nbCooksMax = nbCooksMax;
     _refillTime = refillTime;
@@ -43,8 +44,8 @@ bool Kitchen::addTicket(Ticket &ticket)
 {
     if (_ticketQueue.size() >= 2 * _nbCooksMax)
         return false;
-    _ticketQueue.push_back(ticket);
     std::cout << "New ticket " << ticket.getUuid() << " added to the queue" << std::endl;
+    _ticketQueue.push_back(ticket);
     return true;
 }
 
@@ -55,15 +56,32 @@ std::size_t Kitchen::getTicketQueueSize()
 
 void Kitchen::loop()
 {
-    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(5)) {
+    _slaveTicketBoard.run();
+    _slaveTicketBoard.addListener([this](const Ticket &ticket, const std::string &msg) {
+        std::regex reg(NEW_TICKET_REGEX);
+        std::smatch match;
+        if (std::regex_match(msg, match, reg)) {
+            UUID command;
+            UUID ticket_uuid;
+            command.fromString(match[1]);
+            ticket_uuid.fromString(match[2]);
+            Pizza::Type type = Pizza::parseType(match[3]);
+            Pizza::Size size = Pizza::parseSize(match[4]);
+            Ticket newTicket(ticket_uuid, command, Pizza(type, size));
+            addTicket(newTicket);
+        }
+    }, AbstractTicketBoard::TicketEventType::ADDED);
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(15)) {
         refill();
         updateTickets();
     }
+    _slaveTicketBoard.stop();
+    _slaveTicketBoard->join();
 }
 
 void Kitchen::updateTickets()
 {
-    if (_ticketQueue.size() <= 0)
+    if (_ticketQueue.empty())
         return;
     for (auto &ticket : _ticketQueue) {
         if (!canCook(ticket.getPizza().getType()) || ticket.isBeingProcessed() || ticket.isDone())
@@ -72,13 +90,14 @@ void Kitchen::updateTickets()
             if (cooker.cooker->getIsCooking())
                 continue;
             ticket.setBeingProcessed(true);
-            CookPackage *package = new CookPackage(&ticket, 0, cooker.cooker, &_doneTickets);
+            auto *package = new CookPackage(&ticket, 0, cooker.cooker, &_doneTickets);
             if (package->ticket->getPizza().getType() == Pizza::Regina) {
-                package->timeToCook = 2;
+                package->timeToCook = 2.f;
             } else {
-                package->timeToCook = package->ticket->getPizza().getType() / 2;
+                package->timeToCook = (float) package->ticket->getPizza().getType() / 2.f;
             }
             package->timeToCook *= _cookTimeMultiplier;
+            ticket.setBeingProcessed(true);
             cooker.thread.start(Cooks::cook, package);
             removeIngredients(ticket.getPizza().getType());
             _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -88,10 +107,10 @@ void Kitchen::updateTickets()
     for (auto &ticket : _ticketQueue) {
         if (ticket.isDone()) {
             auto it = findTicket(ticket);
+            _slaveTicketBoard.removeTicket(ticket.getUuid());
             _ticketQueue.erase(it);
         }
     }
-    //todo send done command to reception
     return;
 }
 

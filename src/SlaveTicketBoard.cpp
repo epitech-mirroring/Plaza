@@ -7,6 +7,7 @@
 */
 
 #include <regex>
+#include <format>
 #include "SlaveTicketBoard.hpp"
 
 SlaveTicketBoard::SlaveTicketBoard(): AbstractTicketBoard(Role::SLAVE) {
@@ -33,9 +34,9 @@ void SlaveTicketBoard::_handleMaster(const std::string &message) {
             command_uuid.fromString(match[1]);
             UUID ticket_uuid = UUID();
             ticket_uuid.fromString(match[2]);
-            const Ticket *ticket = &std::find_if(_tickets.begin(), _tickets.end(), [ticket_uuid](const Ticket &ticket) {
+            const Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [ticket_uuid](const Ticket &ticket) {
                 return ticket.getUuid() == ticket_uuid;
-            })[0];
+            }).base();
 
             TicketEventType event_type = RELATION_MAP.at(type);
             for (const auto &callback : _callbacks[event_type]) {
@@ -90,4 +91,21 @@ void SlaveTicketBoard::run()
         }
         return nullptr;
     }, nullptr);
+}
+
+void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
+    Ticket *ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket &ticket) {
+        return ticket.getUuid() == uuid;
+    }).base();
+
+    if (ticket == nullptr) {
+        throw TicketBoardException("Failed to find ticket with UUID " + uuid.toString());
+    }
+
+    std::string formatedMessage = std::format(TICKET_MARKED_AS_DONE_MESSAGE, ticket->getCommandUuid().toString(), ticket->getUuid().toString());
+    _queue.push(formatedMessage);
+}
+
+Thread *SlaveTicketBoard::operator->() {
+    return &_thread;
 }

@@ -20,6 +20,7 @@ protected:
 
 public:
     Ticket(const Command &command, std::size_t pizzaIndex);
+    Ticket(const UUID &ticketUuid, const UUID &commandUuid, const Pizza &pizza);
     Ticket(const Ticket &other);
 
     [[nodiscard]] const UUID &getUuid() const;

@@ -30,4 +30,8 @@ public:
     ~SlaveTicketBoard() override;
 
     void run() override;
+
+    void markTicketAsDone(const UUID& uuid);
+
+    Thread *operator->();
 };

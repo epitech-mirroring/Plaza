@@ -97,6 +97,10 @@ void AbstractTicketBoard::markTicketAsBeingProcessed(const UUID &ticketUUID) {
     ticket->setBeingProcessed(true);
 }
 
+void AbstractTicketBoard::stop() {
+    this->_isRunning = false;
+}
+
 AbstractTicketBoard::TicketBoardException::TicketBoardException(std::string message) : std::exception(), _message(std::move(message)) {
 }
 

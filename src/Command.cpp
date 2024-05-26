@@ -59,7 +59,7 @@ Command &Command::operator=(const Command &other) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Command &command) {
-    os << command.getUuid();
+    os << command.getUuid() << std::endl;
     for (const auto &pizza : command.getPizzas())
         os << "\t -" << pizza << std::endl;
     return os;
