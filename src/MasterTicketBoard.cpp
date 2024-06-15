@@ -12,6 +12,7 @@
 #include <cerrno>
 #include "Format.hpp"
 #include "MasterTicketBoard.hpp"
+#include <string.h>
 
 MasterTicketBoard::MasterTicketBoard(): AbstractTicketBoard(MASTER) {
     this->_slaveToDelete = std::vector<int>();
