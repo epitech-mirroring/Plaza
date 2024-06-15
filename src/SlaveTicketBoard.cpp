@@ -113,7 +113,7 @@ void SlaveTicketBoard::run()
 
 void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
     _mutex.lock();
-    Ticket *ticket = *std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket *ticket) {
+    auto ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket *ticket) {
         return ticket->getUuid() == uuid;
     }).base();
 
@@ -122,16 +122,16 @@ void SlaveTicketBoard::markTicketAsDone(const UUID &uuid) {
         throw TicketBoardException("Failed to find ticket with UUID " + uuid.toString());
     }
 
-    ticket->setBeingProcessed(false);
-    ticket->setDone(true);
+    (*ticket)->setBeingProcessed(false);
+    (*ticket)->setDone(true);
     _mutex.unlock();
-    std::string formatedMessage = Format::formatString(TICKET_MARKED_AS_DONE_MESSAGE, ticket->getCommandUuid().toString().c_str(), ticket->getUuid().toString().c_str());
+    std::string formatedMessage = Format::formatString(TICKET_MARKED_AS_DONE_MESSAGE, (*ticket)->getCommandUuid().toString().c_str(), (*ticket)->getUuid().toString().c_str());
     _queue.push(formatedMessage);
 }
 
 void SlaveTicketBoard::markTicketAsBeingProcessed(const UUID &uuid) {
     _mutex.lock();
-    Ticket *ticket = *std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket *ticket) {
+    auto ticket = std::find_if(_tickets.begin(), _tickets.end(), [uuid](const Ticket *ticket) {
         return ticket->getUuid() == uuid;
     }).base();
 
@@ -140,7 +140,7 @@ void SlaveTicketBoard::markTicketAsBeingProcessed(const UUID &uuid) {
         throw TicketBoardException("Failed to find ticket with UUID " + uuid.toString());
     }
 
-    ticket->setBeingProcessed(true);
+    (*ticket)->setBeingProcessed(true);
     _mutex.unlock();
 }
 

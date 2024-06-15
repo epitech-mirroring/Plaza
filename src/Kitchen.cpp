@@ -25,6 +25,7 @@ Kitchen::Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, f
         auto *cooker = new Cooks();
         _cookers.push_back(cooker);
     }
+    _hasMadeAtLeastOnePizza = false;
 }
 
 void Kitchen::refill()
@@ -49,7 +50,13 @@ bool Kitchen::shouldTerminate() {
     _lastWorkMutex.lock();
     bool shouldTerminate = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork >= std::chrono::seconds(5);
     _lastWorkMutex.unlock();
-    return shouldTerminate && _hasMadeAtLeastOnePizza;
+    shouldTerminate = shouldTerminate && _hasMadeAtLeastOnePizza;
+    if (shouldTerminate) {
+        for (auto cooker : _cookers) {
+            cooker->getThread().join();
+        }
+    }
+    return shouldTerminate;
 }
 
 void Kitchen::loop()
@@ -65,6 +72,7 @@ void Kitchen::loop()
             ticket_uuid.fromString(match[2]);
             Pizza::Type type = Pizza::parseType(match[3]);
             Pizza::Size size = Pizza::parseSize(match[4]);
+            std::cout << "New ticket received: " << ticket_uuid.toString() << std::endl;
             Ticket *newTicket = new Ticket(ticket_uuid, command, Pizza(type, size));
             addTicket(newTicket);
         }

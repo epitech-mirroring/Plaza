@@ -34,6 +34,8 @@ void MasterTicketBoard::_handleSlave(int slave) {
     char buffer[1024];
     long size = recv(slave, buffer, 1024, 0);
     if (size <= 0) {
+        std::cerr << "Slave disconnected" << std::endl;
+        std::cerr << strerror(errno) << std::endl;
         close(slave);
         _slaveToDelete.push_back(slave);
     } else if (size < 1024) {
@@ -75,7 +77,7 @@ void MasterTicketBoard::_handleMessage(const std::string &msg, int sender) {
                     command_uuid.fromString(match[1]);
                     UUID ticket_uuid = UUID();
                     ticket_uuid.fromString(match[2]);
-                    const Ticket *ticket = *std::find_if(_tickets.begin(),
+                    auto ticket = std::find_if(_tickets.begin(),
                                                         _tickets.end(),
                                                         [ticket_uuid](
                                                                 const Ticket *ticket) {
@@ -85,7 +87,10 @@ void MasterTicketBoard::_handleMessage(const std::string &msg, int sender) {
 
                     TicketEventType event_type = RELATION_MAP.at(type);
                     for (const auto &callback: _callbacks[event_type]) {
-                        callback(ticket, message);
+                        if (ticket != nullptr)
+                            callback(*ticket, message);
+                        else
+                            callback(nullptr, message);
                     }
                 }
             } catch (std::regex_error &e) {
