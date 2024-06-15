@@ -12,7 +12,7 @@
 #include "SlaveTicketBoard.hpp"
 
 SlaveTicketBoard::SlaveTicketBoard(): AbstractTicketBoard(Role::SLAVE) {
-
+    this->_queue = std::queue<std::string>();
 }
 
 SlaveTicketBoard::~SlaveTicketBoard() = default;
@@ -96,6 +96,9 @@ void SlaveTicketBoard::run()
             } else if (FD_ISSET(_socket, &writefds)) {
                 std::string message = _queue.front();
                 _queue.pop();
+                if (message.empty()) {
+                    continue;
+                }
                 if (send(_socket, message.c_str(), message.size(), 0) == -1) {
                     throw TicketBoardException("Failed to send message to the master ticket board");
                 }

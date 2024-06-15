@@ -140,7 +140,7 @@ void Reception::run()
     _ticketBoard->join();
 }
 
-void Reception::createKitchen() {
+void Reception::createKitchen() const {
     // Fork a new process
     pid_t pid = fork();
     if (pid == -1) {

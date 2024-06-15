@@ -28,5 +28,5 @@ public:
     void run();
 
     void parseCommand(const std::string &command);
-    void createKitchen();
+    void createKitchen() const;
 };
