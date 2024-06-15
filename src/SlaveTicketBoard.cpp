@@ -41,7 +41,7 @@ void SlaveTicketBoard::_handleMaster(const std::string &message) {
                 UUID ticket_uuid = UUID();
                 ticket_uuid.fromString(match[2]);
                 _mutex.lock();
-                const Ticket *ticket = *std::find_if(_tickets.begin(),
+                auto ticket = std::find_if(_tickets.begin(),
                                                     _tickets.end(),
                                                     [ticket_uuid](
                                                             const Ticket *ticket) {
@@ -51,7 +51,10 @@ void SlaveTicketBoard::_handleMaster(const std::string &message) {
                 _mutex.unlock();
                 TicketEventType event_type = RELATION_MAP.at(type);
                 for (const auto &callback: _callbacks[event_type]) {
-                    callback(ticket, msg);
+                    if (ticket != nullptr)
+                        callback(*ticket, msg);
+                    else
+                        callback(nullptr, msg);
                 }
             }
         }

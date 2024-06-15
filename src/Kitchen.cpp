@@ -41,9 +41,15 @@ bool Kitchen::addTicket(Ticket *ticket)
 {
     if (getCountOfCurrentlyCookingCooks() >= _nbCooksMax)
         return false;
-    std::cout << "New ticket " << ticket->getUuid() << " added to the queue" << std::endl;
     _slaveTicketBoard.addTicket(ticket);
     return true;
+}
+
+bool Kitchen::shouldTerminate() {
+    _lastWorkMutex.lock();
+    bool shouldTerminate = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork >= std::chrono::seconds(5);
+    _lastWorkMutex.unlock();
+    return shouldTerminate && _hasMadeAtLeastOnePizza;
 }
 
 void Kitchen::loop()
@@ -63,7 +69,7 @@ void Kitchen::loop()
             addTicket(newTicket);
         }
     }, AbstractTicketBoard::TicketEventType::ADDED);
-    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()) - _lastWork < std::chrono::seconds(5)) {
+    while (!shouldTerminate()) {
         refill();
         updateTickets();
     }
@@ -96,7 +102,10 @@ void Kitchen::updateTickets()
                 return nullptr;
             }, nullptr);
             removeIngredients(ticket->getPizza().getType());
+            _lastWorkMutex.lock();
             _lastWork = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+            _lastWorkMutex.unlock();
+            this->_hasMadeAtLeastOnePizza = true;
             break;
         }
     }

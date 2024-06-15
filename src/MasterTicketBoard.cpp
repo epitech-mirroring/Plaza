@@ -9,7 +9,7 @@
 #include <regex>
 #include <iostream>
 #include <string>
-#include <errno.h>
+#include <cerrno>
 #include "Format.hpp"
 #include "MasterTicketBoard.hpp"
 
@@ -34,8 +34,6 @@ void MasterTicketBoard::_handleSlave(int slave) {
     char buffer[1024];
     long size = recv(slave, buffer, 1024, 0);
     if (size <= 0) {
-        std::cerr << "Slave disconnected" << std::endl;
-        std::cerr << strerror(errno) << std::endl;
         close(slave);
         _slaveToDelete.push_back(slave);
     } else if (size < 1024) {

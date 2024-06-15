@@ -21,10 +21,12 @@ protected:
     std::size_t _nbCooksMax;
     std::chrono::milliseconds _refillTime;
     std::chrono::milliseconds _lastRefill;
+    Mutex _lastWorkMutex;
     std::chrono::seconds _lastWork;
     float _cookTimeMultiplier;
     std::map<Ingredient, std::size_t> _ingredients;
     SlaveTicketBoard _slaveTicketBoard;
+    bool _hasMadeAtLeastOnePizza = false;
 public:
     Kitchen(std::size_t nbCooksMax, std::chrono::milliseconds refillTime, float cookTimeMultiplier);
     ~Kitchen() = default;
@@ -34,6 +36,7 @@ public:
     void updateTickets();
     bool canCook(Pizza::Type pizzaType);
     void removeIngredients(Pizza::Type pizzaType);
+    bool shouldTerminate();
 
     [[nodiscard]] std::size_t getCountOfCurrentlyCookingCooks() const;
 };
